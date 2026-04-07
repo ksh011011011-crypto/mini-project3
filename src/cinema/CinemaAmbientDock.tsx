@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
 import { pickRandomCinemaTrack, type CinemaTrack } from "./cinemaTracks";
 import { startProceduralMallSound } from "../mall/proceduralMallSound";
+import { fadeOutAndTeardownAudio } from "../lib/fadeOutHtmlAudio";
 
 /** 시네마 탭 전용 BGM(몰과 동일 패턴: 클릭 제스처 후 Web Audio → Mixkit 시도). */
 export default function CinemaAmbientDock() {
@@ -17,13 +18,15 @@ export default function CinemaAmbientDock() {
 
   const stopAll = useCallback(() => {
     const a = audioRef.current;
-    if (a) {
-      a.pause();
-      a.removeAttribute("src");
-      a.load();
-      a.remove();
-    }
     audioRef.current = null;
+    if (a) {
+      if (a.src) {
+        fadeOutAndTeardownAudio(a, 300, () => {});
+      } else {
+        a.pause();
+        a.remove();
+      }
+    }
     if (stopProcRef.current) {
       stopProcRef.current();
       stopProcRef.current = null;
@@ -94,7 +97,12 @@ export default function CinemaAmbientDock() {
   const playing = mode !== "off";
 
   return (
-    <div style={st.wrap} aria-live="polite">
+    <div
+      style={st.wrap}
+      role="region"
+      aria-label="시네마 배경 음악"
+      aria-live="polite"
+    >
       <div style={st.card}>
         <p style={st.title}>시네마 BGM</p>
         <p style={st.sub}>
@@ -109,7 +117,13 @@ export default function CinemaAmbientDock() {
           </span>
         </p>
         {err ? <p style={st.err}>{err}</p> : null}
-        <button type="button" style={st.btn} onClick={toggle}>
+        <button
+          type="button"
+          style={st.btn}
+          onClick={toggle}
+          aria-pressed={playing}
+          aria-label={playing ? "시네마 배경음 끄기" : "시네마 배경음 켜기"}
+        >
           {playing ? "BGM 끄기" : "BGM 켜기"}
         </button>
         <p style={st.note}>
@@ -124,7 +138,7 @@ const st: Record<string, CSSProperties> = {
   wrap: {
     position: "fixed",
     right: 16,
-    bottom: 16,
+    bottom: "max(16px, env(safe-area-inset-bottom, 0px))",
     zIndex: 60,
     maxWidth: 260,
   },

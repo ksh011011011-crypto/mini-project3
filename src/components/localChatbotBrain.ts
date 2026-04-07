@@ -5,7 +5,18 @@
  * - 같은 의도라도 여러 문장 중 랜덤 선택
  */
 
+import type { MallIntentPayload } from "../mall/mallIntent";
+
 export type ChatbotPortal = "mall" | "cinema" | "concert";
+
+/** 챗봇 → App 시네마 초기 뷰 연동용 (CinemaShellView 와 동일 문자열) */
+export type ChatCinemaView = "chart" | "timetable" | "my" | "store";
+
+export type ChatNavigateAction =
+  | { kind: "mall"; payload: MallIntentPayload }
+  | { kind: "cinema"; view: ChatCinemaView }
+  | { kind: "concert"; focusSeats: boolean }
+  | { kind: "parking" };
 
 export type BrainContext = {
   lastIntentId: string | null;
@@ -289,6 +300,7 @@ const INTENTS: IntentDef[] = [
     keywords: ["bgm", "배경음", "음악", "재생", "소리", "플레이"],
     replies: [
       "세현몰 화면 오른쪽 아래 「쇼핑몰 BGM」에서 켜실 수 있습니다. 먼저 Web Audio로 재생이 시작되고, 네트워크가 되면 Mixkit 프리뷰로 전환될 수 있습니다.",
+      "시네마·콘서트·몰·주차 화면은 채팅에 「시네마로 가줘」「콘서트 탭」「주차장으로」처럼 말씀하시면 탭을 맞춰 드립니다.",
     ],
   },
   {
@@ -442,11 +454,135 @@ function pick<T>(arr: T[]): T {
   return arr[Math.floor(Math.random() * arr.length)]!;
 }
 
+function wantsPortalSwitchCommand(n: string): boolean {
+  return /(탭으로|으로\s*가|으로가|이동|화면\s*바꿔|화면바꿔|전환|열어줘|열어|가\s*줘|가줘|보여줘|들어가자|바꿔줘|맞춰줘|옮겨|부탁|해줘|해\s*주)/.test(
+    n
+  );
+}
+
+function isShortPortalAlias(n: string): boolean {
+  const t = n.trim();
+  return (
+    /^(시네마|영화관)(\s*탭)?$/.test(t) ||
+    /^콘서트(\s*탭)?$/.test(t) ||
+    /^(세현몰|쇼핑몰)(\s*탭)?$/.test(t) ||
+    /^몰$/.test(t)
+  );
+}
+
+function inferCinemaView(n: string): ChatCinemaView {
+  if (/(매점|스낵|팝콘|콤보|음료|나초)/.test(n)) return "store";
+  if (/(시간표|상영\s*시간)/.test(n)) return "timetable";
+  if (/(예매\s*내역|내\s*예매|티켓\s*내역|예매내역)/.test(n)) return "my";
+  if (/(무비\s*차트|무비차트|차트|개봉|포스터)/.test(n)) return "chart";
+  return "chart";
+}
+
+function inferMallPayload(n: string): MallIntentPayload {
+  if (/(b1|지하\s*1|지하1|마트로|마트\s*으로|세현\s*마트)/.test(n))
+    return { floorTab: -1, category: "마트" };
+  if (/(9\s*f|9f|9층|식당가|식당으로)/.test(n))
+    return { floorTab: 9, category: "전체" };
+  if (/(베스트|인기\s*상품)/.test(n))
+    return { floorTab: "전체", category: "전체", scrollTo: "best" };
+  if (/(장바구니)/.test(n))
+    return { floorTab: "전체", category: "전체", scrollTo: "cart" };
+  if (/(zoom|줌)/.test(n))
+    return { floorTab: "전체", category: "전체", scrollTo: "zoom" };
+  return {};
+}
+
+function detectChatNavigate(n: string): ChatNavigateAction | null {
+  const navCmd = wantsPortalSwitchCommand(n) || isShortPortalAlias(n);
+
+  const wantsParking =
+    /(주차장|지하\s*주차|지하주차|주차\s*안내|주차(?:로|으로)|parking)/.test(n) &&
+    (navCmd || /열어|보여|이동|탭|화면|가\s*줘|가줘/.test(n));
+  if (wantsParking) return { kind: "parking" };
+
+  if (!navCmd && !isShortPortalAlias(n)) return null;
+
+  if (/(콘서트|르세라핌|lesserafim|공연\s*홀|라이브\s*홀)/.test(n)) {
+    const focusSeats = /(좌석|좌석\s*구역|예매\s*화면)/.test(n);
+    return { kind: "concert", focusSeats };
+  }
+
+  if (
+    /(시네마|영화관|영화\s*탭)/.test(n) ||
+    (/(무비|상영|예매|매점)/.test(n) && navCmd)
+  ) {
+    return { kind: "cinema", view: inferCinemaView(n) };
+  }
+
+  if (/(세현몰|쇼핑몰|몰로|몰으로|쇼핑으로|몰\s*탭|식당가로)/.test(n) || /^몰$/.test(n.trim())) {
+    return { kind: "mall", payload: inferMallPayload(n) };
+  }
+
+  return null;
+}
+
+function refineNav(
+  nav: ChatNavigateAction | null,
+  portal: ChatbotPortal,
+  surface: "portals" | "parking",
+  input: string
+): ChatNavigateAction | null {
+  if (!nav) return null;
+  if (nav.kind === "parking") {
+    if (surface === "parking") return null;
+    return nav;
+  }
+  if (surface === "parking") return nav;
+
+  if (nav.kind === "mall") {
+    if (portal === "mall" && Object.keys(nav.payload).length === 0) return null;
+    return nav;
+  }
+  if (nav.kind === "concert") {
+    if (portal === "concert" && !nav.focusSeats) return null;
+    return nav;
+  }
+  if (nav.kind === "cinema") {
+    if (portal === "cinema") {
+      const specific = /(매점|스낵|팝콘|콤보|음료|나초|시간표|상영\s*시간|무비|차트|개봉|포스터|예매\s*내|내\s*예매|티켓\s*내)/.test(
+        input
+      );
+      if (!specific) return null;
+    }
+    return nav;
+  }
+  return nav;
+}
+
+type LocalReplyCore = {
+  text: string;
+  intentId: string | null;
+  bumpGreetCount: boolean;
+};
+
+export type LocalAiReplyResult = LocalReplyCore & { navigate?: ChatNavigateAction };
+
+function attachNavigate(
+  input: string,
+  portal: ChatbotPortal,
+  surface: "portals" | "parking",
+  core: LocalReplyCore
+): LocalAiReplyResult {
+  const nav = refineNav(detectChatNavigate(input), portal, surface, input);
+  if (!nav) return core;
+  return {
+    ...core,
+    text: `${core.text}\n\n✨ 요청에 맞춰 화면(탭)을 전환해 두었습니다.`,
+    navigate: nav,
+  };
+}
+
 export function localAiReply(
   rawInput: string,
   portal: ChatbotPortal,
-  ctx: BrainContext
-): { text: string; intentId: string | null; bumpGreetCount: boolean } {
+  ctx: BrainContext,
+  surface: "portals" | "parking" = "portals"
+): LocalAiReplyResult {
   const input = normalize(rawInput);
   if (!input) {
     return {
@@ -479,23 +615,32 @@ export function localAiReply(
   if (vague && ctx.lastIntentId) {
     const prev = INTENTS.find((i) => i.id === ctx.lastIntentId);
     if (prev?.followUpReplies?.length) {
-      return {
+      return attachNavigate(input, portal, surface, {
         text: pick(prev.followUpReplies),
         intentId: prev.id,
         bumpGreetCount: false,
-      };
+      });
     }
     const prevDef = INTENTS.find((i) => i.id === ctx.lastIntentId);
     if (prevDef?.replies.length) {
-      return {
+      return attachNavigate(input, portal, surface, {
         text: `직전에 말씀하신 내용을 이어서 안내해 드리겠습니다.\n${pick(prevDef.replies)}`,
         intentId: prevDef.id,
         bumpGreetCount: false,
-      };
+      });
     }
   }
 
   if (!best || best.score < 2) {
+    const navFallback = refineNav(detectChatNavigate(input), portal, surface, input);
+    if (navFallback) {
+      return {
+        text: "알겠습니다. 요청하신 대로 화면을 맞춰 두었습니다.",
+        intentId: null,
+        bumpGreetCount: false,
+        navigate: navFallback,
+      };
+    }
     const hint =
       portal === "mall"
         ? "지금은 세현몰 탭입니다. 층·키즈·전자, 장바구니, BGM, 관리자 결제 등의 말씀을 덧붙여 주시면 감사하겠습니다."
@@ -510,15 +655,19 @@ export function localAiReply(
   }
 
   if (best.id === "farewell") {
-    return { text: pick(best.def.replies), intentId: "farewell", bumpGreetCount: false };
+    return attachNavigate(input, portal, surface, {
+      text: pick(best.def.replies),
+      intentId: "farewell",
+      bumpGreetCount: false,
+    });
   }
 
   if (best.id === "greet") {
-    return {
+    return attachNavigate(input, portal, surface, {
       text: buildGreetingReply(input, portal, ctx),
       intentId: "greet",
       bumpGreetCount: true,
-    };
+    });
   }
 
   const pool =
@@ -538,7 +687,11 @@ export function localAiReply(
     text = `${pick(fillers)}${text}`;
   }
 
-  return { text, intentId: best.id, bumpGreetCount: false };
+  return attachNavigate(input, portal, surface, {
+    text,
+    intentId: best.id,
+    bumpGreetCount: false,
+  });
 }
 
 export function typingDelayMs(replyLength: number): number {

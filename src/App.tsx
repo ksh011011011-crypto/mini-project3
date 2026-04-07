@@ -1,4 +1,4 @@
-import { useState, type CSSProperties } from "react";
+import { useCallback, useEffect, useState, type CSSProperties } from "react";
 import CinemaSite, {
   type CinemaFocusRequest,
   type CinemaShellView,
@@ -9,8 +9,10 @@ import ParkingPage from "./facilities/ParkingPage";
 import type { MallIntentPayload } from "./mall/mallIntent";
 import MallSite from "./mall/MallSite";
 import SehyeonChatbot from "./components/SehyeonChatbot";
+import type { ChatNavigateAction } from "./components/localChatbotBrain";
 import SehyeonSessionCelebration from "./components/SehyeonSessionCelebration";
 import ClickSparkLayer from "./components/ClickSparkLayer";
+import SehyeonFooterMeta from "./components/SehyeonFooterMeta";
 
 type Portal = "mall" | "cinema" | "concert";
 
@@ -26,28 +28,84 @@ export default function App() {
     CinemaFocusRequest | undefined
   >();
   const [concertFocusTok, setConcertFocusTok] = useState(0);
+  /** 시네마 탭(또는 빠른 이동) 클릭할 때마다 증가 → 별 연출 재생 */
+  const [cinemaFx, setCinemaFx] = useState(0);
+  /** 콘서트 탭 클릭할 때마다 증가 → 입장·슬라이드 연출 재생 */
+  const [concertFx, setConcertFx] = useState(0);
 
-  const goMall = (payload: MallIntentPayload) => {
-    setSurface("portals");
-    setPortal("mall");
-    setMallIntent(payload);
-    setMallIntentKey((k) => k + 1);
-  };
+  /** 상단 탭·빠른 이동 모두 동일 규칙: 시네마/콘서트일 때만 FX 카운터 증가 */
+  const activatePortal = useCallback((next: Portal) => {
+    setPortal(next);
+    if (next === "cinema") setCinemaFx((n) => n + 1);
+    if (next === "concert") setConcertFx((n) => n + 1);
+  }, []);
 
-  const goCinema = (view: CinemaShellView) => {
-    setSurface("portals");
-    setPortal("cinema");
-    setCinemaFocus((prev) => ({
-      view,
-      token: (prev?.token ?? 0) + 1,
-    }));
-  };
+  const goMall = useCallback(
+    (payload: MallIntentPayload) => {
+      setSurface("portals");
+      activatePortal("mall");
+      setMallIntent(payload);
+      setMallIntentKey((k) => k + 1);
+    },
+    [activatePortal]
+  );
 
-  const goConcertSeats = () => {
+  const goCinema = useCallback(
+    (view: CinemaShellView) => {
+      setSurface("portals");
+      activatePortal("cinema");
+      setCinemaFocus((prev) => ({
+        view,
+        token: (prev?.token ?? 0) + 1,
+      }));
+    },
+    [activatePortal]
+  );
+
+  const goConcertSeats = useCallback(() => {
     setSurface("portals");
-    setPortal("concert");
+    activatePortal("concert");
     setConcertFocusTok((t) => t + 1);
-  };
+  }, [activatePortal]);
+
+  const handleChatNavigate = useCallback(
+    (a: ChatNavigateAction) => {
+      if (a.kind === "parking") {
+        setSurface("parking");
+        return;
+      }
+      setSurface("portals");
+      if (a.kind === "mall") {
+        goMall(a.payload);
+        return;
+      }
+      if (a.kind === "cinema") {
+        goCinema(a.view);
+        return;
+      }
+      activatePortal("concert");
+      if (a.focusSeats) setConcertFocusTok((t) => t + 1);
+    },
+    [goMall, goCinema, activatePortal]
+  );
+
+  useEffect(() => {
+    if (kiosk) {
+      document.title = "세현 시네마 · 키오스크 데모";
+      return;
+    }
+    if (surface === "parking") {
+      document.title = "지하 주차 안내 · 세현 복합 단지";
+      return;
+    }
+    const label =
+      portal === "mall"
+        ? "세현몰"
+        : portal === "cinema"
+          ? "세현 시네마"
+          : "세현 콘서트";
+    document.title = `${label} · 세현 복합 단지 데모`;
+  }, [kiosk, surface, portal]);
 
   if (kiosk) {
     return (
@@ -73,7 +131,16 @@ export default function App() {
       <div style={shell.page} className="sehyeon-app-shell">
         <ClickSparkLayer />
         <ParkingPage onBack={() => setSurface("portals")} />
-        <SehyeonChatbot portal={portal} />
+        <footer className="sehyeon-site-footer sehyeon-site-footer--parking" role="contentinfo">
+          <div className="sehyeon-site-footer-inner">
+            <SehyeonFooterMeta />
+          </div>
+        </footer>
+        <SehyeonChatbot
+          portal={portal}
+          surface="parking"
+          onNavigate={handleChatNavigate}
+        />
       </div>
     );
   }
@@ -126,7 +193,7 @@ export default function App() {
                 ...(portal === "mall" ? shell.tabOnMall : {}),
               }}
               aria-current={portal === "mall" ? "page" : undefined}
-              onClick={() => setPortal("mall")}
+              onClick={() => activatePortal("mall")}
             >
               <span style={shell.tabIcon} aria-hidden>
                 🛍
@@ -140,7 +207,7 @@ export default function App() {
                 ...(portal === "cinema" ? shell.tabOnCinema : {}),
               }}
               aria-current={portal === "cinema" ? "page" : undefined}
-              onClick={() => setPortal("cinema")}
+              onClick={() => activatePortal("cinema")}
             >
               <span style={shell.tabIcon} aria-hidden>
                 🎬
@@ -154,7 +221,7 @@ export default function App() {
                 ...(portal === "concert" ? shell.tabOnConcert : {}),
               }}
               aria-current={portal === "concert" ? "page" : undefined}
-              onClick={() => setPortal("concert")}
+              onClick={() => activatePortal("concert")}
             >
               <span style={shell.tabIcon} aria-hidden>
                 🎤
@@ -329,11 +396,16 @@ export default function App() {
           {portal === "mall" && (
             <MallSite intentVersion={mallIntentKey} intent={mallIntent} />
           )}
-          {portal === "cinema" && <CinemaSite focus={cinemaFocus} />}
-          {portal === "concert" && <ConcertSite focusToken={concertFocusTok} />}
+          {portal === "cinema" && (
+            <CinemaSite focus={cinemaFocus} fxPulse={cinemaFx} />
+          )}
+          {portal === "concert" && (
+            <ConcertSite focusToken={concertFocusTok} fxPulse={concertFx} />
+          )}
         </div>
         <footer className="sehyeon-site-footer" role="contentinfo">
           <div className="sehyeon-site-footer-inner">
+            <SehyeonFooterMeta />
             <p className="sehyeon-site-footer-line">
               <span className="sehyeon-site-footer-strong">
                 세현 복합 단지 데모
@@ -346,7 +418,11 @@ export default function App() {
           </div>
         </footer>
       </main>
-      <SehyeonChatbot portal={portal} />
+      <SehyeonChatbot
+        portal={portal}
+        surface="portals"
+        onNavigate={handleChatNavigate}
+      />
     </div>
   );
 }

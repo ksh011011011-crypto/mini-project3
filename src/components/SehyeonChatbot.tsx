@@ -12,6 +12,7 @@ import {
   typingDelayMs,
   type BrainContext,
   type ChatbotPortal,
+  type ChatNavigateAction,
 } from "./localChatbotBrain";
 
 export type { ChatbotPortal };
@@ -31,6 +32,9 @@ function welcomeText(portal: ChatbotPortal): string {
     where,
     "",
     "💬 인사만 해 주셔도 시간대에 맞춰 답해 드리고, 주차·예매·결제·쇼핑·공연처럼 **키워드 한두 개**만 적어 주셔도 돼요.",
+    "",
+    "🧭 **「시네마로 가줘」「주차장으로」「B1 마트로」「콘서트 탭」**처럼 말씀하시면 상단 탭·화면을 맞춰 드립니다.",
+    "",
     "🔒 외부 API 없이 **이 브라우저 안에서만** 응답해요. (로컬 안내 데모입니다)",
     "",
     "💪 힘내세요 — 거의 다 왔어요! 오늘 둘러보시는 동안 즐거운 시간 되세요 🎉",
@@ -172,7 +176,11 @@ const shell: Record<string, CSSProperties> = {
   },
 };
 
-type Props = { portal: ChatbotPortal };
+type Props = {
+  portal: ChatbotPortal;
+  surface?: "portals" | "parking";
+  onNavigate?: (action: ChatNavigateAction) => void;
+};
 
 const initialCtx = (): BrainContext => ({
   lastIntentId: null,
@@ -180,7 +188,11 @@ const initialCtx = (): BrainContext => ({
   greetExchangeCount: 0,
 });
 
-export default function SehyeonChatbot({ portal }: Props) {
+export default function SehyeonChatbot({
+  portal,
+  surface = "portals",
+  onNavigate,
+}: Props) {
   const id = useId();
   const [open, setOpen] = useState(false);
   const [text, setText] = useState("");
@@ -223,7 +235,12 @@ export default function SehyeonChatbot({ portal }: Props) {
     push("user", q);
     setText("");
 
-    const { text: answer, intentId, bumpGreetCount } = localAiReply(q, portal, ctxRef.current);
+    const { text: answer, intentId, bumpGreetCount, navigate } = localAiReply(
+      q,
+      portal,
+      ctxRef.current,
+      surface
+    );
     const prev = ctxRef.current;
     ctxRef.current = {
       lastIntentId: intentId ?? prev.lastIntentId,
@@ -238,8 +255,9 @@ export default function SehyeonChatbot({ portal }: Props) {
       thinkTimerRef.current = null;
       setThinking(false);
       push("bot", answer);
+      if (navigate) queueMicrotask(() => onNavigate?.(navigate));
     }, delay);
-  }, [text, portal, push, thinking]);
+  }, [text, portal, surface, onNavigate, push, thinking]);
 
   const onKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {

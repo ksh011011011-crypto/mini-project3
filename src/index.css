@@ -594,6 +594,62 @@ a {
   }
 }
 
+@keyframes cinema-stars-twinkle-slow {
+  0% {
+    opacity: 0.28;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0.72;
+    transform: scale(1.02);
+  }
+}
+
+.cinema-hero-wrap .cinema-hero-stars-2 {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  mix-blend-mode: screen;
+  background-image:
+    radial-gradient(1px 1px at 15% 22%, rgba(253, 224, 71, 0.9), transparent),
+    radial-gradient(1.2px 1.2px at 35% 62%, rgba(255, 255, 255, 0.75), transparent),
+    radial-gradient(1px 1px at 55% 18%, rgba(196, 181, 253, 0.85), transparent),
+    radial-gradient(1px 1px at 68% 48%, rgba(255, 255, 255, 0.5), transparent),
+    radial-gradient(1.2px 1.2px at 82% 72%, rgba(253, 224, 71, 0.7), transparent),
+    radial-gradient(1px 1px at 25% 88%, rgba(255, 255, 255, 0.65), transparent),
+    radial-gradient(1px 1px at 90% 38%, rgba(244, 114, 182, 0.55), transparent),
+    radial-gradient(1.2px 1.2px at 8% 55%, rgba(255, 255, 255, 0.55), transparent),
+    radial-gradient(1px 1px at 48% 92%, rgba(125, 211, 252, 0.5), transparent),
+    radial-gradient(1px 1px at 72% 8%, rgba(255, 255, 255, 0.8), transparent);
+  animation: cinema-stars-twinkle-slow 6.2s ease-in-out infinite alternate;
+}
+
+/* 탭·빠른 이동으로 시네마 진입 시 별 레이어 일회성 강조 */
+@keyframes cinema-hero-star-burst {
+  0% {
+    filter: brightness(1);
+    transform: scale(1);
+    opacity: 0.55;
+  }
+  38% {
+    filter: brightness(1.55) saturate(1.12);
+    transform: scale(1.045);
+    opacity: 1;
+  }
+  100% {
+    filter: brightness(1);
+    transform: scale(1);
+    opacity: 0.82;
+  }
+}
+
+.cinema-hero-bloom .cinema-hero-stars,
+.cinema-hero-bloom .cinema-hero-stars-2 {
+  animation: cinema-hero-star-burst 1.35s cubic-bezier(0.22, 1, 0.36, 1) forwards !important;
+}
+
 .cinema-hero-wrap .cinema-hero-stars {
   position: absolute;
   inset: 0;
@@ -636,6 +692,167 @@ a {
   .concert-hero-banner {
     grid-template-columns: 1fr;
   }
+}
+
+/* 콘서트 히어로 슬라이드 */
+.concert-hero-slider {
+  width: 100%;
+  max-width: 280px;
+  margin: 0 auto;
+}
+
+.concert-hero-slider-viewport {
+  position: relative;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 2px solid rgba(252, 211, 77, 0.5);
+  box-shadow:
+    0 0 28px rgba(251, 191, 36, 0.28),
+    0 14px 44px rgba(0, 0, 0, 0.5);
+}
+
+@keyframes concert-slider-spark-flash {
+  0% {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+  35% {
+    opacity: 0.95;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.15);
+  }
+}
+
+.concert-hero-slider-viewport--spark::after {
+  content: "";
+  position: absolute;
+  inset: -8%;
+  z-index: 2;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      circle at 50% 42%,
+      rgba(255, 255, 255, 0.55) 0%,
+      rgba(251, 191, 36, 0.35) 28%,
+      rgba(244, 114, 182, 0.22) 52%,
+      transparent 72%
+    );
+  mix-blend-mode: screen;
+  animation: concert-slider-spark-flash 0.68s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* 콘서트 탭 진입 시 히어로·페이지 오로라 */
+@keyframes concert-portal-aurora {
+  0% {
+    opacity: 0;
+    transform: scaleY(0.6) translateY(-6%);
+  }
+  22% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: scaleY(1.05) translateY(0);
+  }
+}
+
+@keyframes concert-hero-banner-rise {
+  0% {
+    filter: brightness(1);
+    transform: translateY(10px);
+    box-shadow: 0 0 0 rgba(167, 139, 250, 0);
+  }
+  45% {
+    filter: brightness(1.12) saturate(1.08);
+    box-shadow: 0 0 48px rgba(167, 139, 250, 0.22);
+  }
+  100% {
+    filter: brightness(1);
+    transform: translateY(0);
+    box-shadow: 0 0 0 rgba(167, 139, 250, 0);
+  }
+}
+
+.concert-site-root.concert-portal-shine {
+  position: relative;
+}
+
+.concert-site-root.concert-portal-shine::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 19;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 120% 55% at 50% -5%, rgba(251, 191, 36, 0.28), transparent 58%),
+    radial-gradient(ellipse 90% 40% at 85% 20%, rgba(244, 114, 182, 0.18), transparent 50%),
+    radial-gradient(ellipse 70% 50% at 12% 35%, rgba(129, 140, 248, 0.2), transparent 48%);
+  animation: concert-portal-aurora 1.15s ease-out forwards;
+}
+
+.concert-site-root.concert-portal-shine .concert-hero-banner {
+  animation: concert-hero-banner-rise 1.05s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.concert-hero-slider-track {
+  display: flex;
+  width: 100%;
+  transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.concert-hero-slider-slide {
+  flex: 0 0 100%;
+  min-width: 0;
+}
+
+.concert-hero-slider-slide img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  vertical-align: middle;
+}
+
+.concert-hero-slider-dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.concert-hero-slider-dot {
+  width: 8px;
+  height: 8px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  background: rgba(148, 163, 184, 0.55);
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease;
+}
+
+.concert-hero-slider-dot:hover {
+  transform: scale(1.15);
+  background: rgba(196, 181, 253, 0.85);
+}
+
+.concert-hero-slider-dot--on {
+  background: linear-gradient(135deg, #fcd34d, #f472b6);
+  box-shadow: 0 0 10px rgba(251, 191, 36, 0.45);
+}
+
+.concert-hero-slider-cap {
+  margin: 8px 0 0;
+  font-size: 0.62rem;
+  color: #a5b4fc;
+  line-height: 1.4;
+  text-align: center;
 }
 
 .sehyeon-skip-link {
@@ -772,6 +989,69 @@ a {
   color: #78716c;
   font-weight: 500;
   letter-spacing: -0.01em;
+}
+
+.sehyeon-site-footer--parking {
+  margin-top: 1.75rem;
+}
+
+.sehyeon-footer-meta {
+  margin: 0 0 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(196, 92, 62, 0.14);
+  text-align: center;
+}
+
+.sehyeon-footer-meta-session {
+  margin: 0;
+  font-size: 0.78rem;
+  color: #3f3a35;
+  font-weight: 600;
+  line-height: 1.65;
+}
+
+.sehyeon-footer-meta-contact {
+  margin: 0.85rem 0 0;
+  font-size: 0.72rem;
+  color: #57534e;
+  font-style: normal;
+  line-height: 1.7;
+}
+
+.sehyeon-footer-meta-hours {
+  display: inline-block;
+  margin-top: 0.35rem;
+  font-size: 0.92em;
+  color: #78716c;
+}
+
+.sehyeon-footer-meta-label {
+  color: var(--accent-dim);
+  font-weight: 800;
+  font-size: 0.92em;
+}
+
+.sehyeon-footer-meta-sep {
+  color: #a8a29e;
+  margin: 0 0.4rem;
+  font-weight: 500;
+}
+
+.sehyeon-footer-meta-url {
+  margin: 0.75rem 0 0;
+  font-size: 0.68rem;
+  color: #78716c;
+  line-height: 1.5;
+  word-break: break-all;
+}
+
+.sehyeon-footer-meta-url-text {
+  font-family: ui-monospace, "Cascadia Code", "IBM Plex Mono", monospace;
+  font-size: 0.95em;
+}
+
+.sehyeon-footer-meta + .sehyeon-site-footer-line {
+  margin-top: 0.15rem;
 }
 
 .sehyeon-ribbon {
@@ -1068,9 +1348,36 @@ a {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .cinema-hero-wrap .cinema-hero-stars {
+  .cinema-hero-wrap .cinema-hero-stars,
+  .cinema-hero-wrap .cinema-hero-stars-2 {
     animation: none !important;
     opacity: 0.65 !important;
+    transform: none !important;
+  }
+
+  .cinema-hero-bloom .cinema-hero-stars,
+  .cinema-hero-bloom .cinema-hero-stars-2 {
+    animation: none !important;
+    filter: none !important;
+  }
+
+  .concert-site-root.concert-portal-shine::before {
+    display: none !important;
+  }
+
+  .concert-site-root.concert-portal-shine .concert-hero-banner {
+    animation: none !important;
+    filter: none !important;
+    transform: none !important;
+    box-shadow: none !important;
+  }
+
+  .concert-hero-slider-viewport--spark::after {
+    display: none !important;
+  }
+
+  .concert-hero-slider-track {
+    transition: none !important;
   }
 
   .sehyeon-click-spark,

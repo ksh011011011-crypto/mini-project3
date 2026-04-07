@@ -74,9 +74,12 @@ export type CinemaFocusRequest = { view: CinemaShellView; token: number };
 export default function CinemaSite({
   kiosk = false,
   focus,
+  fxPulse = 0,
 }: {
   kiosk?: boolean;
   focus?: CinemaFocusRequest;
+  /** 상단 탭·빠른 이동으로 시네마 진입할 때마다 증가 → 별 연출 */
+  fxPulse?: number;
 }) {
   const { loginGuest } = useAuth();
   const now = useMemo(() => new Date(), []);
@@ -99,6 +102,15 @@ export default function CinemaSite({
     "all" | "now" | "soon" | "ended"
   >("all");
   const [yearFilter, setYearFilter] = useState<string>("all");
+  const [starBloom, setStarBloom] = useState(false);
+
+  useEffect(() => {
+    if (kiosk) return;
+    if (fxPulse < 1) return;
+    setStarBloom(true);
+    const t = window.setTimeout(() => setStarBloom(false), 1500);
+    return () => window.clearTimeout(t);
+  }, [fxPulse, kiosk]);
 
   useEffect(() => {
     if (kiosk) loginGuest();
@@ -146,6 +158,12 @@ export default function CinemaSite({
     () => filterMoviesForChart(MOVIES, chartTab, yearFilter),
     [chartTab, yearFilter]
   );
+
+  const chartYearOptions = useMemo(() => {
+    const y = new Set<string>();
+    for (const m of MOVIES) y.add(m.openDate.slice(0, 4));
+    return [...y].sort((a, b) => b.localeCompare(a));
+  }, []);
 
   const nowMovies = useMemo(
     () => MOVIES.filter((m) => m.releaseStatus === "now"),
@@ -323,12 +341,13 @@ export default function CinemaSite({
 
       <section
         style={cx.hero}
-        className="cinema-hero-wrap"
+        className={`cinema-hero-wrap${starBloom ? " cinema-hero-bloom" : ""}`}
         aria-label="대표 배너"
       >
         <img src={movie.backdropUrl} alt="" style={cx.heroBg} />
         <div style={cx.heroGrad} />
         <div className="cinema-hero-stars" aria-hidden />
+        <div className="cinema-hero-stars-2" aria-hidden />
         <div style={cx.heroContent}>
           <p style={cx.heroBadge}>지금 예매 중 · 실시간 잔여석 반영(데모)</p>
           <h1 style={cx.heroTitle}>{movie.titleKo}</h1>
@@ -402,8 +421,11 @@ export default function CinemaSite({
                   style={cx.yearSel}
                 >
                   <option value="all">전체</option>
-                  <option value="2026">2026</option>
-                  <option value="2025">2025</option>
+                  {chartYearOptions.map((y) => (
+                    <option key={y} value={y}>
+                      {y}
+                    </option>
+                  ))}
                 </select>
               </label>
             </div>

@@ -10,7 +10,10 @@ export default defineConfig({
     port: 4173,
     strictPort: false,
   },
+  /** 5173 대역이 다른 터미널에 잡혀 있을 때가 많아, 이 프로젝트 전용 기본 포트로 둡니다. */
   server: {
     host: true,
+    port: 5188,
+    strictPort: false,
   },
 });

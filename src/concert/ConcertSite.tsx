@@ -14,10 +14,8 @@ import { formatStars } from "../cinema/movieFilters";
 import { CONCERT_MERCH, buildConcertShows } from "./shows";
 import { addConcertBooking, loadConcertBookings, saveConcertBookings } from "./storage";
 import type { ConcertBooking, ConcertShow } from "./types";
-
-/** Unsplash 스톡(무료) — 라이브·조명 분위기. 공식 단체 홍보 사진이 아닙니다. */
-const CONCERT_STAGE_IMAGE =
-  "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=480&h=600&fit=crop&auto=format&q=82";
+import ConcertHeroSlider from "./ConcertHeroSlider";
+import ConcertAmbientDock from "./ConcertAmbientDock";
 
 const rows = "ABCDEFGH".split("");
 
@@ -39,9 +37,12 @@ function seatExtra(seatId: string): number {
 
 export default function ConcertSite({
   focusToken = 0,
+  fxPulse = 0,
 }: {
   /** 상단 빠른 이동 등에서 증가시키면 좌석 구역으로 스크롤 */
   focusToken?: number;
+  /** 콘서트 탭 클릭할 때마다 증가 → 입장·슬라이드 연출 */
+  fxPulse?: number;
 }) {
   const now = useMemo(() => new Date(), []);
   const shows = useMemo(() => buildConcertShows(now), [now]);
@@ -53,8 +54,16 @@ export default function ConcertSite({
   const [merchQty, setMerchQty] = useState<Record<string, number>>({});
   const [step, setStep] = useState<"seats" | "merch">("seats");
   const [payOpen, setPayOpen] = useState(false);
+  const [portalShine, setPortalShine] = useState(false);
 
   const refresh = useCallback(() => setBookings(loadConcertBookings()), []);
+
+  useEffect(() => {
+    if (fxPulse < 1) return;
+    setPortalShine(true);
+    const t = window.setTimeout(() => setPortalShine(false), 1200);
+    return () => window.clearTimeout(t);
+  }, [fxPulse]);
 
   useEffect(() => {
     if (focusToken < 1) return;
@@ -131,7 +140,10 @@ export default function ConcertSite({
   };
 
   return (
-    <div style={cx.page}>
+    <div
+      style={cx.page}
+      className={portalShine ? "concert-site-root concert-portal-shine" : "concert-site-root"}
+    >
       <header style={cx.head}>
         <div style={cx.headInner}>
           <div>
@@ -157,19 +169,9 @@ export default function ConcertSite({
               예술의전당 본관 오페라극장을 모델로 했습니다.
             </p>
           </div>
-          <figure style={cx.heroFig}>
-            <img
-              src={CONCERT_STAGE_IMAGE}
-              alt=""
-              style={cx.heroImg}
-              width={280}
-              height={360}
-              loading="lazy"
-            />
-            <figcaption style={cx.heroCap}>
-              라이브 무대 분위기 참고 이미지 (스톡) · 공식 단체 사진 아님
-            </figcaption>
-          </figure>
+          <div style={cx.heroFig}>
+            <ConcertHeroSlider portalSpark={fxPulse} />
+          </div>
         </section>
 
         <section style={cx.section}>
@@ -381,6 +383,8 @@ export default function ConcertSite({
       <footer style={cx.foot}>
         좌석 수 {ALL_SEAT_IDS.length}석 기준 데모 · 르세라핌 실제 일정과 무관합니다.
       </footer>
+
+      <ConcertAmbientDock />
     </div>
   );
 }
@@ -406,27 +410,7 @@ const cx: Record<string, CSSProperties> = {
     background: "linear-gradient(135deg,#1e1b4b,#312e81)",
   },
   heroCopy: { minWidth: 0 },
-  heroFig: { margin: 0, justifySelf: "center" },
-  heroImg: {
-    width: "100%",
-    maxWidth: 260,
-    height: "auto",
-    borderRadius: 14,
-    display: "block",
-    objectFit: "cover",
-    aspectRatio: "4 / 5",
-    border: "2px solid rgba(252, 211, 77, 0.55)",
-    boxShadow:
-      "0 0 28px rgba(251, 191, 36, 0.28), 0 14px 44px rgba(0, 0, 0, 0.5)",
-  },
-  heroCap: {
-    margin: "8px 0 0",
-    fontSize: "0.62rem",
-    color: "#a5b4fc",
-    lineHeight: 1.35,
-    textAlign: "center",
-    maxWidth: 260,
-  },
+  heroFig: { margin: 0, justifySelf: "center", width: "100%", maxWidth: 280 },
   h1: { margin: "0 0 8px", fontSize: "1.8rem", fontWeight: 900 },
   tag: { margin: "0 0 10px", color: "#c7d2fe", fontWeight: 700 },
   scoreLine: {
