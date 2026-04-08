@@ -13,6 +13,7 @@ import type { ChatNavigateAction } from "./components/localChatbotBrain";
 import SehyeonSessionCelebration from "./components/SehyeonSessionCelebration";
 import ClickSparkLayer from "./components/ClickSparkLayer";
 import SehyeonFooterMeta from "./components/SehyeonFooterMeta";
+import PortalScreenFx from "./components/PortalScreenFx";
 
 type Portal = "mall" | "cinema" | "concert";
 
@@ -32,13 +33,26 @@ export default function App() {
   const [cinemaFx, setCinemaFx] = useState(0);
   /** 콘서트 탭 클릭할 때마다 증가 → 입장·슬라이드 연출 재생 */
   const [concertFx, setConcertFx] = useState(0);
+  /** 세현몰 탭 클릭할 때마다 증가 → 상단 별·반짝 연출 */
+  const [mallFx, setMallFx] = useState(0);
+  /** 화면·탭 전환마다 증가 → 전역 버스트 + 본문 진입 애니 variant */
+  const [portalBurst, setPortalBurst] = useState(0);
+
+  const bumpPortalBurst = useCallback(() => {
+    setPortalBurst((n) => n + 1);
+  }, []);
 
   /** 상단 탭·빠른 이동 모두 동일 규칙: 시네마/콘서트일 때만 FX 카운터 증가 */
-  const activatePortal = useCallback((next: Portal) => {
-    setPortal(next);
-    if (next === "cinema") setCinemaFx((n) => n + 1);
-    if (next === "concert") setConcertFx((n) => n + 1);
-  }, []);
+  const activatePortal = useCallback(
+    (next: Portal) => {
+      bumpPortalBurst();
+      setPortal(next);
+      if (next === "mall") setMallFx((n) => n + 1);
+      if (next === "cinema") setCinemaFx((n) => n + 1);
+      if (next === "concert") setConcertFx((n) => n + 1);
+    },
+    [bumpPortalBurst]
+  );
 
   const goMall = useCallback(
     (payload: MallIntentPayload) => {
@@ -71,6 +85,7 @@ export default function App() {
   const handleChatNavigate = useCallback(
     (a: ChatNavigateAction) => {
       if (a.kind === "parking") {
+        bumpPortalBurst();
         setSurface("parking");
         return;
       }
@@ -86,7 +101,7 @@ export default function App() {
       activatePortal("concert");
       if (a.focusSeats) setConcertFocusTok((t) => t + 1);
     },
-    [goMall, goCinema, activatePortal]
+    [goMall, goCinema, activatePortal, bumpPortalBurst]
   );
 
   useEffect(() => {
@@ -128,9 +143,18 @@ export default function App() {
 
   if (surface === "parking") {
     return (
-      <div style={shell.page} className="sehyeon-app-shell">
+      <div
+        style={shell.page}
+        className="sehyeon-app-shell sehyeon-parking-shell"
+      >
         <ClickSparkLayer />
-        <ParkingPage onBack={() => setSurface("portals")} />
+        <PortalScreenFx burstKey={portalBurst} portal={portal} />
+        <ParkingPage
+          onBack={() => {
+            bumpPortalBurst();
+            setSurface("portals");
+          }}
+        />
         <footer className="sehyeon-site-footer sehyeon-site-footer--parking" role="contentinfo">
           <div className="sehyeon-site-footer-inner">
             <SehyeonFooterMeta />
@@ -244,7 +268,10 @@ export default function App() {
           <button
             type="button"
             style={shell.facilityBtn}
-            onClick={() => setSurface("parking")}
+            onClick={() => {
+              bumpPortalBurst();
+              setSurface("parking");
+            }}
           >
             🅿 지하 주차
           </button>
@@ -392,9 +419,17 @@ export default function App() {
       </div>
 
       <main id="sehyeon-main" tabIndex={-1} className="sehyeon-main-surface">
-        <div key={portal} className="sehyeon-portal-mount">
+        <PortalScreenFx burstKey={portalBurst} portal={portal} />
+        <div
+          key={`${portal}-${portalBurst}`}
+          className={`sehyeon-portal-mount sehyeon-portal-mount--vx-${portalBurst % 8}`}
+        >
           {portal === "mall" && (
-            <MallSite intentVersion={mallIntentKey} intent={mallIntent} />
+            <MallSite
+              intentVersion={mallIntentKey}
+              intent={mallIntent}
+              fxPulse={mallFx}
+            />
           )}
           {portal === "cinema" && (
             <CinemaSite focus={cinemaFocus} fxPulse={cinemaFx} />
@@ -496,14 +531,17 @@ const shell: Record<string, CSSProperties> = {
   },
   brandTextBlock: { display: "flex", flexDirection: "column", gap: 2 },
   brandTitle: {
-    fontSize: "1.02rem",
+    fontSize: "1.06rem",
     fontWeight: 800,
     letterSpacing: "-0.02em",
-    background: "linear-gradient(95deg, #fff 0%, #fef3c7 35%, #fde68a 55%, #fce7f3 78%, #e9d5ff 100%)",
-    backgroundSize: "160% 100%",
+    background:
+      "linear-gradient(102deg, #fff 0%, #fef9c3 18%, #fde68a 32%, #fbcfe8 52%, #e9d5ff 68%, #fde68a 82%, #fff 100%)",
+    backgroundSize: "220% 100%",
     WebkitBackgroundClip: "text",
     WebkitTextFillColor: "transparent",
     backgroundClip: "text",
+    filter:
+      "drop-shadow(0 0 10px rgba(251,191,36,0.55)) drop-shadow(0 0 18px rgba(167,139,250,0.4)) drop-shadow(0 0 26px rgba(244,63,94,0.22))",
   },
   portalHint: {
     fontSize: "0.62rem",

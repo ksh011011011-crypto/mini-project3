@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
 import { pickRandomCinemaTrack, type CinemaTrack } from "./cinemaTracks";
-import { startProceduralMallSound } from "../mall/proceduralMallSound";
+import { startProceduralFarewellAmbient } from "../mall/proceduralMallSound";
 import { fadeOutAndTeardownAudio } from "../lib/fadeOutHtmlAudio";
 
-/** 시네마 탭 전용 BGM(몰과 동일 패턴: 클릭 제스처 후 Web Audio → Mixkit 시도). */
+/** 시네마 탭 전용 BGM(몰과 동일: 클릭 제스처 후 Web Audio → Mixkit 풀 트랙). */
 export default function CinemaAmbientDock() {
   const trackRef = useRef<CinemaTrack | null>(null);
   if (!trackRef.current) trackRef.current = pickRandomCinemaTrack();
@@ -43,7 +43,7 @@ export default function CinemaAmbientDock() {
     const attempt = fileAttemptRef.current;
 
     try {
-      stopProcRef.current = startProceduralMallSound();
+      stopProcRef.current = startProceduralFarewellAmbient();
       setMode("proc");
     } catch {
       setErr("이 브라우저에서 오디오를 시작할 수 없습니다.");
@@ -110,9 +110,9 @@ export default function CinemaAmbientDock() {
           <br />
           <span style={st.hint}>
             {mode === "proc"
-              ? "스트리밍 대기 중이거나 Web Audio 앰비언트 재생 중"
+              ? "스트리밍 대기 중이거나 이별 톤 Web Audio 재생 중"
               : mode === "file"
-                ? "Mixkit 프리뷰 스트리밍"
+                ? "Mixkit 스트리밍 (잔잔·서정)"
                 : "「BGM 켜기」를 누르면 재생됩니다"}
           </span>
         </p>

@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
 import { pickRandomConcertTrack, type ConcertTrack } from "./concertTracks";
-import { startProceduralMallSound } from "../mall/proceduralMallSound";
+import { startProceduralFarewellAmbient } from "../mall/proceduralMallSound";
 import { fadeOutAndTeardownAudio } from "../lib/fadeOutHtmlAudio";
 
-/** 콘서트 탭 전용 BGM — 클릭 후 Web Audio → Mixkit 시도. */
+/** 콘서트 탭 전용 BGM — 클릭 후 Web Audio → Mixkit 풀 트랙. */
 export default function ConcertAmbientDock() {
   const trackRef = useRef<ConcertTrack | null>(null);
   if (!trackRef.current) trackRef.current = pickRandomConcertTrack();
@@ -43,7 +43,7 @@ export default function ConcertAmbientDock() {
     const attempt = fileAttemptRef.current;
 
     try {
-      stopProcRef.current = startProceduralMallSound();
+      stopProcRef.current = startProceduralFarewellAmbient();
       setMode("proc");
     } catch {
       setErr("이 브라우저에서 오디오를 시작할 수 없습니다.");
@@ -117,10 +117,10 @@ export default function ConcertAmbientDock() {
           <br />
           <span style={st.hint}>
             {mode === "proc"
-              ? "Web Audio 앰비언트 또는 스트리밍 대기"
+              ? "이별 톤 Web Audio 또는 스트리밍 대기"
               : mode === "file"
-                ? "Mixkit 프리뷰 재생 중"
-                : "「BGM 켜기」로 공연 분위기 음악"}
+                ? "Mixkit 스트리밍 (잔잔·서정)"
+                : "「BGM 켜기」로 감성 BGM"}
           </span>
         </p>
         {err ? <p style={st.err}>{err}</p> : null}

@@ -154,7 +154,15 @@ export default function ConcertSite({
       </header>
 
       <main style={cx.main}>
-        <section style={cx.hero} className="concert-hero-banner">
+        <section
+          style={cx.hero}
+          className={`concert-hero-banner${portalShine ? " concert-hero-bloom" : ""}`}
+        >
+          <div className="concert-hero-stars" aria-hidden />
+          <div className="concert-hero-stars-2" aria-hidden />
+          <div className="concert-hero-star-orbit" aria-hidden>
+            <div className="concert-hero-star-glyphs" />
+          </div>
           <div style={cx.heroCopy}>
             <h1 style={cx.h1}>LE SSERAFIM</h1>
             <p style={cx.tag}>무대인사 · 미니콘서트 · 현장 MD</p>

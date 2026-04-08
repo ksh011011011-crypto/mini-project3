@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
 import { pickRandomTrack, type MallTrack } from "./mallTracks";
-import { startProceduralMallSound } from "./proceduralMallSound";
+import { startProceduralFarewellAmbient } from "./proceduralMallSound";
 import { fadeOutAndTeardownAudio } from "../lib/fadeOutHtmlAudio";
 
 /**
  * 쇼핑몰 탭에 들어올 때마다 컴포넌트가 새로 마운트되면 트랙이 다시 랜덤으로 고정됩니다.
  * 브라우저 자동재생 정책 때문에, 재생은 반드시 사용자 클릭으로 시작합니다.
- * 클릭 직후 동기적으로 Web Audio를 켠 뒤(제스처 유지), 가능하면 Mixkit 스트리밍으로 갈아탑니다.
+ * 클릭 직후 동기적으로 Web Audio를 켠 뒤(제스처 유지), 가능하면 Mixkit 풀 트랙으로 갈아탑니다.
  */
 export default function MallAmbientDock() {
   const trackRef = useRef<MallTrack | null>(null);
@@ -49,7 +49,7 @@ export default function MallAmbientDock() {
     const attempt = fileAttemptRef.current;
 
     try {
-      stopProcRef.current = startProceduralMallSound();
+      stopProcRef.current = startProceduralFarewellAmbient();
       setMode("proc");
     } catch {
       setErr("이 브라우저에서 오디오를 시작할 수 없습니다.");
@@ -111,9 +111,9 @@ export default function MallAmbientDock() {
           <br />
           <span style={st.hint}>
             {mode === "proc"
-              ? "스트리밍 로딩 중이거나, 생성형 앰비언트(Web Audio)로 재생 중"
+              ? "스트리밍 로딩 중이거나, 이별 톤 생성 앰비언트(Web Audio) 재생 중"
               : mode === "file"
-                ? "Mixkit 프리뷰 스트리밍 재생 중"
+                ? "Mixkit 스트리밍 재생 중 (잔잔·서정)"
                 : "「BGM 켜기」를 누르면 바로 소리가 납니다"}
           </span>
         </p>

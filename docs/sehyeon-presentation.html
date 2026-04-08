@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>세현 복합 단지 데모 — 발표 자료</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink: #0f1419;
+      --muted: #5c6b7a;
+      --line: #e2e8f0;
+      --accent: #2563eb;
+      --accent-soft: #eff6ff;
+      --card: #f8fafc;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Noto Sans KR", system-ui, sans-serif;
+      color: var(--ink);
+      background: #fff;
+      line-height: 1.55;
+      font-size: 15px;
+    }
+    .slide {
+      min-height: 100vh;
+      padding: 3rem 2.5rem 2.5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      border-bottom: 1px solid var(--line);
+    }
+    .slide:last-child { border-bottom: none; }
+    .slide--cover {
+      justify-content: center;
+      text-align: center;
+      background: linear-gradient(160deg, #0f172a 0%, #1e3a5f 45%, #2563eb 100%);
+      color: #fff;
+      border-bottom: none;
+    }
+    .slide--cover .tag {
+      display: inline-block;
+      font-size: 0.85rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      opacity: 0.9;
+      margin-bottom: 1rem;
+    }
+    .slide--cover h1 {
+      font-size: clamp(1.75rem, 5vw, 2.75rem);
+      font-weight: 800;
+      margin: 0 0 0.75rem;
+      line-height: 1.2;
+    }
+    .slide--cover .sub {
+      font-size: 1.1rem;
+      opacity: 0.92;
+      max-width: 36rem;
+      margin: 0 auto;
+    }
+    h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin: 0 0 1.25rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 3px solid var(--accent);
+      display: inline-block;
+    }
+    h3 {
+      font-size: 1.05rem;
+      font-weight: 600;
+      margin: 1.25rem 0 0.5rem;
+      color: var(--ink);
+    }
+    p, li { color: var(--ink); }
+    ul {
+      margin: 0.35rem 0 0;
+      padding-left: 1.25rem;
+    }
+    li { margin: 0.35rem 0; }
+    .muted { color: var(--muted); font-size: 0.95rem; }
+    .grid-2 {
+      display: grid;
+      gap: 1rem 2rem;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      margin-top: 0.5rem;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 1rem 1.15rem;
+    }
+    .card strong { color: var(--accent); }
+    .pill {
+      display: inline-block;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 0.2rem 0.55rem;
+      border-radius: 999px;
+      margin-right: 0.35rem;
+      margin-bottom: 0.35rem;
+    }
+    .footer-note {
+      margin-top: auto;
+      padding-top: 2rem;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    @media print {
+      @page { size: A4; margin: 14mm; }
+      body { font-size: 11pt; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .slide {
+        min-height: auto;
+        page-break-after: always;
+        padding: 0;
+        border: none;
+      }
+      .slide:last-child { page-break-after: auto; }
+      .slide--cover { padding: 8mm 0 12mm; }
+    }
+  </style>
+</head>
+<body>
+
+  <section class="slide slide--cover">
+    <span class="tag">Mini Project · 데모</span>
+    <h1>세현 복합 단지<br />통합 웹 데모</h1>
+    <p class="sub">몰 · 시네마 · 콘서트 · 주차를 한 화면에서 체험하고,<br />챗봇·BGM·전환 연출로 발표 임팩트를 높인 프론트엔드 시연용 앱입니다.</p>
+  </section>
+
+  <section class="slide">
+    <h2>프로젝트 개요</h2>
+    <p>복합 문화·상업 시설을 <strong>단일 포털</strong>에서 탐색하는 시연용 웹 애플리케이션입니다. 실제 결제·백엔드 없이 <strong>로컬 상태</strong>로 장바구니·예매·주차 흐름을 재현합니다.</p>
+    <h3>시연 포인트</h3>
+    <ul>
+      <li>탭(포털) 전환 시 시각 효과와 BGM 전환</li>
+      <li>몰·시네마 화면의 별·반짝임 등 분위기 연출</li>
+      <li>챗봇으로 각 시설 화면으로 빠르게 이동</li>
+      <li>시네마: 가장 빠른 회차 + 추천 좌석 기준 <strong>자동 예매</strong> 데모</li>
+    </ul>
+  </section>
+
+  <section class="slide">
+    <h2>세현몰</h2>
+    <div class="grid-2">
+      <div class="card">
+        <strong>쇼핑 플로우</strong>
+        <p class="muted" style="margin:0.5rem 0 0;">카테고리·층(B1 등)·상품 탐색, 장바구니, 체크아웃 모달(승인 시뮬레이션·취소 가능).</p>
+      </div>
+      <div class="card">
+        <strong>연출</strong>
+        <p class="muted" style="margin:0.5rem 0 0;">히어로 영역 별 레이어, 포털 전환·펄스와 연동된 FX.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <h2>시네마</h2>
+    <div class="grid-2">
+      <div class="card">
+        <strong>예매 UX</strong>
+        <p class="muted" style="margin:0.5rem 0 0;">영화·회차·좌석 선택, <code>addBooking</code>으로 즉시 예약 반영.</p>
+      </div>
+      <div class="card">
+        <strong>자동 예매</strong>
+        <p class="muted" style="margin:0.5rem 0 0;">가장 빠른 회차 + 추천 좌석 2석 우선으로 원클릭 데모.</p>
+      </div>
+    </div>
+    <h3>비주얼</h3>
+    <p class="muted">별 실루엣 레이어 등 몰과 톤을 맞춘 배경 연출.</p>
+  </section>
+
+  <section class="slide">
+    <h2>콘서트 · 주차</h2>
+    <div class="grid-2">
+      <div class="card">
+        <strong>콘서트</strong>
+        <p class="muted" style="margin:0.5rem 0 0;">공연 정보·티켓 플로우, 포털 샤인·FX 펄스로 다른 탭과 동일한 완성도.</p>
+      </div>
+      <div class="card">
+        <strong>주차</strong>
+        <p class="muted" style="margin:0.5rem 0 0;">입차·요금·키오스크 등 단지 내 이동 맥락을 보완.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <h2>챗봇 &amp; 네비게이션</h2>
+    <p>자연어/버튼형 입력으로 <strong>몰 · 시네마 · 콘서트 · 주차</strong> 화면으로 전환합니다. 발표 시 “챗봇에 말하고 바로 해당 탭으로 이동”하는 시나리오에 적합합니다.</p>
+    <h3>기술 메모</h3>
+    <p class="muted">로컬 브레인(<code>localChatbotBrain</code>)과 액션 타입(<code>ChatNavigateAction</code>)으로 화면 전환을 트리거합니다.</p>
+  </section>
+
+  <section class="slide">
+    <h2>사운드 &amp; 인터랙션</h2>
+    <p>
+      <span class="pill">BGM</span>
+      <span class="pill">페이드</span>
+      <span class="pill">포털 버스트</span>
+      <span class="pill">클릭 스파크</span>
+    </p>
+    <ul>
+      <li>시설별 앰비언트 BGM, 전환 시 페이드아웃(<code>fadeOutHtmlAudio</code>).</li>
+      <li>포털(탭) 전환마다 여러 종류의 버스트·마운트 애니메이션.</li>
+      <li>문서 전역 클릭 시 스파크(필요 시 <code>data-no-click-spark</code>로 제외).</li>
+      <li>접근성: <code>prefers-reduced-motion</code> 시 연출 완화.</li>
+    </ul>
+  </section>
+
+  <section class="slide">
+    <h2>기술 스택 &amp; 실행</h2>
+    <ul>
+      <li><strong>React 18</strong> + <strong>TypeScript</strong> + <strong>Vite 6</strong></li>
+      <li>상태·예매·장바구니: 주로 클라이언트 로컬 상태 / <code>localStorage</code> 패턴</li>
+      <li>개발: <code>npm run dev</code> (기본 포트는 프로젝트 설정에 따름, 예: 5188)</li>
+      <li>배포 시: <code>npm run build</code> 후 정적 호스팅</li>
+    </ul>
+    <div class="footer-note">
+      이 HTML은 브라우저에서 <strong>인쇄 → PDF 저장</strong>하거나, 저장된 <code>docs/세현-복합단지-발표.pdf</code>를 그대로 사용하면 됩니다.
+    </div>
+  </section>
+
+</body>
+</html>

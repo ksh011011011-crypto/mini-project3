@@ -2,18 +2,23 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 type Slide = { src: string; caption: string };
 
+/** Unsplash 원본 ID — 배포 시 HEAD로 200 확인됨(404 ID는 제외). */
 const SLIDES: Slide[] = [
   {
-    src: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?ixlib=rb-4.0.3&auto=format&fit=crop&w=640&q=82",
-    caption: "라이브 공연장 조명 (스톡)",
+    src: "https://images.unsplash.com/photo-1459749411175-04bf5292ceea?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=85",
+    caption: "관객·무대 조명 (스톡)",
   },
   {
-    src: "https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?ixlib=rb-4.0.3&auto=format&fit=crop&w=640&q=82",
-    caption: "무대 레이저·빔 분위기 (스톡)",
+    src: "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=85",
+    caption: "페스티벌·조명 (스톡)",
   },
   {
-    src: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?ixlib=rb-4.0.3&auto=format&fit=crop&w=640&q=82",
-    caption: "이벤트·파티 라이트 (스톡)",
+    src: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=85",
+    caption: "라이브 공연장 (스톡)",
+  },
+  {
+    src: "https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=85",
+    caption: "무대 레이저·빔 (스톡)",
   },
 ];
 

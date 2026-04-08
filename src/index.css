@@ -343,6 +343,15 @@ a {
   z-index: 1;
 }
 
+.sehyeon-parking-shell {
+  position: relative;
+  min-height: 100vh;
+}
+
+.sehyeon-parking-shell .sehyeon-portal-burst {
+  z-index: 12;
+}
+
 @keyframes sehyeon-portal-mount-in {
   from {
     opacity: 0;
@@ -356,8 +365,330 @@ a {
   }
 }
 
+@keyframes sehyeon-portal-mount-slide-l {
+  from {
+    opacity: 0;
+    transform: translateX(-28px) scale(0.98);
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
+
+@keyframes sehyeon-portal-mount-slide-r {
+  from {
+    opacity: 0;
+    transform: translateX(28px) scale(0.98);
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
+
+@keyframes sehyeon-portal-mount-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.94);
+    filter: blur(6px);
+  }
+  70% {
+    opacity: 1;
+    transform: scale(1.012);
+    filter: blur(0);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+    filter: none;
+  }
+}
+
+@keyframes sehyeon-portal-mount-zoom {
+  from {
+    opacity: 0;
+    transform: scale(1.06);
+    filter: blur(8px) saturate(1.15);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+    filter: none;
+  }
+}
+
+@keyframes sehyeon-portal-mount-skew {
+  from {
+    opacity: 0;
+    transform: skewX(-4deg) translateY(12px);
+    filter: blur(3px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
+
+@keyframes sehyeon-portal-mount-clip {
+  from {
+    opacity: 0;
+    clip-path: inset(12% 8% 18% 8% round 12px);
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    clip-path: inset(0% 0% 0% 0% round 0px);
+    transform: none;
+  }
+}
+
+@keyframes sehyeon-portal-mount-rise {
+  from {
+    opacity: 0;
+    transform: translateY(22px) rotateX(8deg);
+    transform-origin: 50% 0%;
+    filter: blur(5px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
+
 .sehyeon-portal-mount {
-  animation: sehyeon-portal-mount-in 0.58s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-duration: 0.78s;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  animation-fill-mode: both;
+  will-change: opacity, transform, filter;
+}
+
+.sehyeon-portal-mount--vx-0 {
+  animation-name: sehyeon-portal-mount-in;
+}
+.sehyeon-portal-mount--vx-1 {
+  animation-name: sehyeon-portal-mount-slide-l;
+}
+.sehyeon-portal-mount--vx-2 {
+  animation-name: sehyeon-portal-mount-slide-r;
+}
+.sehyeon-portal-mount--vx-3 {
+  animation-name: sehyeon-portal-mount-pop;
+}
+.sehyeon-portal-mount--vx-4 {
+  animation-name: sehyeon-portal-mount-zoom;
+}
+.sehyeon-portal-mount--vx-5 {
+  animation-name: sehyeon-portal-mount-skew;
+}
+.sehyeon-portal-mount--vx-6 {
+  animation-name: sehyeon-portal-mount-clip;
+}
+.sehyeon-portal-mount--vx-7 {
+  animation-name: sehyeon-portal-mount-rise;
+}
+
+/* 전환 순간 풀스크린 버스트(본문 영역) — screen만 쓰면 밝은 배경에서 희미해져 normal 혼합 */
+.sehyeon-portal-burst {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 42;
+  mix-blend-mode: normal;
+  isolation: isolate;
+}
+
+.sehyeon-portal-burst--p-mall {
+  --burst-core: rgba(251, 191, 36, 0.72);
+  --burst-edge: rgba(244, 63, 94, 0.48);
+}
+.sehyeon-portal-burst--p-cinema {
+  --burst-core: rgba(251, 113, 133, 0.68);
+  --burst-edge: rgba(253, 224, 71, 0.52);
+}
+.sehyeon-portal-burst--p-concert {
+  --burst-core: rgba(167, 139, 250, 0.72);
+  --burst-edge: rgba(251, 191, 36, 0.5);
+}
+
+@keyframes sehyeon-portal-burst-radial {
+  0% {
+    opacity: 0;
+    background: radial-gradient(circle at 50% 45%, var(--burst-core), transparent 58%);
+  }
+  35% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    background: radial-gradient(circle at 50% 40%, transparent, transparent 70%);
+  }
+}
+
+@keyframes sehyeon-portal-burst-sweep {
+  0% {
+    opacity: 0;
+    transform: translateX(-100%) skewX(-12deg);
+    background: linear-gradient(
+      105deg,
+      transparent 0%,
+      var(--burst-core) 48%,
+      var(--burst-edge) 52%,
+      transparent 100%
+    );
+  }
+  40% {
+    opacity: 0.95;
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(100%) skewX(-12deg);
+  }
+}
+
+@keyframes sehyeon-portal-burst-shutter {
+  0% {
+    opacity: 0.85;
+    clip-path: inset(0 0 100% 0);
+    background: linear-gradient(180deg, var(--burst-edge), var(--burst-core));
+  }
+  55% {
+    clip-path: inset(0 0 0 0);
+  }
+  100% {
+    opacity: 0;
+    clip-path: inset(100% 0 0 0);
+  }
+}
+
+@keyframes sehyeon-portal-burst-diag {
+  0% {
+    opacity: 0;
+    background: linear-gradient(
+      125deg,
+      transparent 40%,
+      var(--burst-core) 50%,
+      var(--burst-edge) 55%,
+      transparent 65%
+    );
+    transform: scale(1.4) translate(-12%, -8%);
+  }
+  45% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.8) translate(8%, 12%);
+  }
+}
+
+@keyframes sehyeon-portal-burst-ripple {
+  0% {
+    opacity: 0.9;
+    background: radial-gradient(
+      circle at 50% 50%,
+      var(--burst-core) 0%,
+      var(--burst-edge) 35%,
+      transparent 55%
+    );
+    transform: scale(0.2);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(2.2);
+  }
+}
+
+@keyframes sehyeon-portal-burst-edges {
+  0% {
+    opacity: 0;
+    box-shadow:
+      inset 0 0 0 0 var(--burst-core),
+      inset 0 0 0 0 var(--burst-edge);
+  }
+  30% {
+    opacity: 1;
+    box-shadow:
+      inset 0 3px 0 0 var(--burst-core),
+      inset 0 -3px 0 0 var(--burst-edge);
+  }
+  100% {
+    opacity: 0;
+    box-shadow:
+      inset 0 24px 48px -20px transparent,
+      inset 0 -24px 48px -20px transparent;
+  }
+}
+
+@keyframes sehyeon-portal-burst-flash {
+  0% {
+    opacity: 0;
+    background: linear-gradient(
+      160deg,
+      rgba(255, 255, 255, 0) 0%,
+      var(--burst-core) 45%,
+      var(--burst-edge) 55%,
+      rgba(255, 255, 255, 0) 100%
+    );
+  }
+  25% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes sehyeon-portal-burst-sparkle {
+  0% {
+    opacity: 0;
+    background-image:
+      radial-gradient(2px 2px at 20% 30%, var(--burst-core), transparent),
+      radial-gradient(2px 2px at 70% 20%, var(--burst-edge), transparent),
+      radial-gradient(1.5px 1.5px at 50% 60%, #fff, transparent),
+      radial-gradient(2px 2px at 85% 75%, var(--burst-core), transparent);
+    background-size: 100% 100%;
+    transform: scale(0.85);
+  }
+  40% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.15);
+  }
+}
+
+.sehyeon-portal-burst--v0 {
+  animation: sehyeon-portal-burst-radial 0.58s ease-out forwards;
+}
+.sehyeon-portal-burst--v1 {
+  animation: sehyeon-portal-burst-sweep 0.52s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.sehyeon-portal-burst--v2 {
+  animation: sehyeon-portal-burst-shutter 0.55s ease-in-out forwards;
+}
+.sehyeon-portal-burst--v3 {
+  animation: sehyeon-portal-burst-diag 0.56s ease-out forwards;
+}
+.sehyeon-portal-burst--v4 {
+  animation: sehyeon-portal-burst-ripple 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.sehyeon-portal-burst--v5 {
+  animation: sehyeon-portal-burst-edges 0.55s ease-out forwards;
+}
+.sehyeon-portal-burst--v6 {
+  animation: sehyeon-portal-burst-flash 0.48s ease-out forwards;
+}
+.sehyeon-portal-burst--v7 {
+  animation: sehyeon-portal-burst-sparkle 0.58s ease-out forwards;
 }
 
 .sehyeon-portal-tabs button[aria-current="page"] {
@@ -559,9 +890,9 @@ a {
 
 .sehyeon-click-spark {
   position: fixed;
-  width: 14px;
-  height: 14px;
-  margin: -7px 0 0 -7px;
+  width: 16px;
+  height: 16px;
+  margin: -8px 0 0 -8px;
   border-radius: 50%;
   background: radial-gradient(
     circle,
@@ -573,6 +904,99 @@ a {
   box-shadow: 0 0 14px rgba(251, 191, 36, 0.55);
 }
 
+.sehyeon-click-spark--v0 {
+  background: radial-gradient(
+    circle,
+    rgba(253, 224, 71, 0.98) 0%,
+    rgba(244, 63, 94, 0.5) 40%,
+    transparent 72%
+  );
+  box-shadow: 0 0 16px rgba(251, 191, 36, 0.6);
+}
+
+.sehyeon-click-spark--v1 {
+  background: radial-gradient(
+    circle,
+    rgba(167, 139, 250, 0.95) 0%,
+    rgba(244, 114, 182, 0.45) 44%,
+    transparent 70%
+  );
+  box-shadow: 0 0 18px rgba(167, 139, 250, 0.55);
+  animation: sehyeon-click-spark-pop-soft 0.52s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.sehyeon-click-spark--v2 {
+  background: radial-gradient(
+    circle,
+    rgba(56, 189, 248, 0.92) 0%,
+    rgba(129, 140, 248, 0.48) 42%,
+    transparent 70%
+  );
+  box-shadow: 0 0 16px rgba(56, 189, 248, 0.5);
+  animation: sehyeon-click-spark-pop-snap 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.sehyeon-click-spark--v3 {
+  background: radial-gradient(
+    circle,
+    rgba(254, 240, 138, 0.98) 0%,
+    rgba(234, 88, 12, 0.42) 38%,
+    transparent 68%
+  );
+  box-shadow: 0 0 14px rgba(251, 146, 60, 0.55);
+}
+
+.sehyeon-click-spark--v4 {
+  background: radial-gradient(
+    circle,
+    rgba(52, 211, 153, 0.9) 0%,
+    rgba(253, 224, 71, 0.4) 45%,
+    transparent 72%
+  );
+  box-shadow: 0 0 15px rgba(52, 211, 153, 0.45);
+  animation: sehyeon-click-spark-pop-twist 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.sehyeon-click-spark--v5 {
+  background: radial-gradient(
+    circle,
+    rgba(251, 113, 133, 0.95) 0%,
+    rgba(253, 224, 71, 0.38) 42%,
+    transparent 70%
+  );
+  box-shadow: 0 0 17px rgba(251, 113, 133, 0.5);
+  animation: sehyeon-click-spark-pop-ring 0.54s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.sehyeon-click-spark--v6 {
+  border-radius: 30% 70% 65% 35% / 40% 45% 55% 60%;
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.95) 0%,
+    rgba(196, 181, 253, 0.5) 38%,
+    transparent 68%
+  );
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.45);
+  animation: sehyeon-click-spark-pop-soft 0.52s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.sehyeon-click-spark--v7 {
+  width: 12px;
+  height: 12px;
+  margin: -6px 0 0 -6px;
+  background: radial-gradient(
+    circle,
+    rgba(250, 204, 21, 1) 0%,
+    rgba(239, 68, 68, 0.55) 35%,
+    rgba(147, 51, 234, 0.35) 55%,
+    transparent 75%
+  );
+  box-shadow:
+    0 0 8px rgba(250, 204, 21, 0.8),
+    0 0 22px rgba(244, 63, 94, 0.35);
+  animation: sehyeon-click-spark-pop-snap 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
 @keyframes sehyeon-click-spark-pop {
   0% {
     transform: scale(0.15);
@@ -580,6 +1004,56 @@ a {
   }
   100% {
     transform: scale(5);
+    opacity: 0;
+  }
+}
+
+@keyframes sehyeon-click-spark-pop-soft {
+  0% {
+    transform: scale(0.2);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(4.2);
+    opacity: 0;
+  }
+}
+
+@keyframes sehyeon-click-spark-pop-snap {
+  0% {
+    transform: scale(0.08) rotate(0deg);
+    opacity: 1;
+  }
+  55% {
+    opacity: 0.95;
+  }
+  100% {
+    transform: scale(5.5) rotate(18deg);
+    opacity: 0;
+  }
+}
+
+@keyframes sehyeon-click-spark-pop-twist {
+  0% {
+    transform: scale(0.12) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(4.8) rotate(-28deg);
+    opacity: 0;
+  }
+}
+
+@keyframes sehyeon-click-spark-pop-ring {
+  0% {
+    transform: scale(0.25);
+    opacity: 1;
+  }
+  70% {
+    opacity: 0.65;
+  }
+  100% {
+    transform: scale(6.2);
     opacity: 0;
   }
 }
@@ -680,12 +1154,346 @@ a {
   animation: cinema-stars-twinkle 4.8s ease-in-out infinite alternate;
 }
 
+/* 별 실루엣 전체를 아주 천천히 회전(틀어짐 연출) */
+@keyframes cinema-star-orbit-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(-360deg);
+  }
+}
+
+.cinema-hero-star-orbit {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  overflow: hidden;
+  animation: cinema-star-orbit-spin 46s linear infinite;
+}
+
+/* 시네마 히어로: 별 모양 실루엣(탭 누를 때마다 반짝 강조) */
+.cinema-hero-wrap .cinema-hero-star-shapes {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  overflow: hidden;
+  mix-blend-mode: screen;
+  opacity: 0.72;
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23fef08a' d='M12 1.5l3.2 7.4L23 9.8l-5.8 5 2 7.7-7.2-4.4-7.2 4.4 2-7.7-5.8-5 7.8-0.9z'/%3E%3C/svg%3E")
+      8% 18% / 20px 20px no-repeat,
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23fbcfe8' d='M12 1.5l3.2 7.4L23 9.8l-5.8 5 2 7.7-7.2-4.4-7.2 4.4 2-7.7-5.8-5 7.8-0.9z'/%3E%3C/svg%3E")
+      72% 12% / 14px 14px no-repeat,
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23fff' d='M12 1.5l3.2 7.4L23 9.8l-5.8 5 2 7.7-7.2-4.4-7.2 4.4 2-7.7-5.8-5 7.8-0.9z'/%3E%3C/svg%3E")
+      88% 42% / 11px 11px no-repeat,
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23fde68a' d='M12 1.5l3.2 7.4L23 9.8l-5.8 5 2 7.7-7.2-4.4-7.2 4.4 2-7.7-5.8-5 7.8-0.9z'/%3E%3C/svg%3E")
+      22% 62% / 16px 16px no-repeat,
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23fda4af' d='M12 1.5l3.2 7.4L23 9.8l-5.8 5 2 7.7-7.2-4.4-7.2 4.4 2-7.7-5.8-5 7.8-0.9z'/%3E%3C/svg%3E")
+      55% 28% / 13px 13px no-repeat,
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23fef9c3' d='M12 1.5l3.2 7.4L23 9.8l-5.8 5 2 7.7-7.2-4.4-7.2 4.4 2-7.7-5.8-5 7.8-0.9z'/%3E%3C/svg%3E")
+      42% 78% / 18px 18px no-repeat,
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23fff' d='M12 1.5l3.2 7.4L23 9.8l-5.8 5 2 7.7-7.2-4.4-7.2 4.4 2-7.7-5.8-5 7.8-0.9z'/%3E%3C/svg%3E")
+      91% 72% / 15px 15px no-repeat;
+  animation: cinema-star-glyphs-idle 2.8s ease-in-out infinite alternate;
+}
+
+@keyframes cinema-star-glyphs-idle {
+  0% {
+    opacity: 0.45;
+    transform: scale(0.96) rotate(-4deg);
+    filter: brightness(0.95);
+  }
+  100% {
+    opacity: 0.88;
+    transform: scale(1.04) rotate(4deg);
+    filter: brightness(1.2);
+  }
+}
+
+@keyframes cinema-hero-star-shape-burst {
+  0% {
+    opacity: 0.25;
+    transform: scale(0.55) rotate(-25deg);
+    filter: brightness(0.8) blur(2px);
+  }
+  35% {
+    opacity: 1;
+    transform: scale(1.12) rotate(8deg);
+    filter: brightness(1.65) blur(0);
+  }
+  70% {
+    opacity: 0.95;
+    transform: scale(1.05) rotate(-4deg);
+    filter: brightness(1.35);
+  }
+  100% {
+    opacity: 0.72;
+    transform: scale(1) rotate(0deg);
+    filter: brightness(1.05);
+  }
+}
+
+.cinema-hero-bloom .cinema-hero-star-shapes {
+  animation: cinema-hero-star-shape-burst 1.45s cubic-bezier(0.22, 1, 0.36, 1) forwards !important;
+}
+
+/* 세현몰 상단: 매번 탭 시 별·점 + 별 실루엣 반짝 */
+.mall-hero-wrap {
+  position: relative;
+  overflow: hidden;
+}
+
+.mall-hero-wrap .mall-promo,
+.mall-hero-wrap .mall-topbar {
+  position: relative;
+  z-index: 3;
+}
+
+@keyframes mall-stars-twinkle {
+  0% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 0.92;
+  }
+}
+
+@keyframes mall-stars-twinkle-slow {
+  0% {
+    opacity: 0.35;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0.78;
+    transform: scale(1.02);
+  }
+}
+
+.mall-hero-stars {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  mix-blend-mode: screen;
+  background-image:
+    radial-gradient(1.2px 1.2px at 10% 25%, rgba(253, 224, 71, 0.95), transparent),
+    radial-gradient(1px 1px at 28% 55%, rgba(255, 255, 255, 0.85), transparent),
+    radial-gradient(1.2px 1.2px at 52% 18%, rgba(251, 191, 36, 0.9), transparent),
+    radial-gradient(1px 1px at 68% 48%, rgba(254, 215, 170, 0.75), transparent),
+    radial-gradient(1.2px 1.2px at 85% 30%, rgba(255, 255, 255, 0.8), transparent),
+    radial-gradient(1px 1px at 18% 78%, rgba(253, 224, 71, 0.7), transparent),
+    radial-gradient(1px 1px at 76% 72%, rgba(255, 255, 255, 0.65), transparent),
+    radial-gradient(1.2px 1.2px at 44% 88%, rgba(251, 113, 133, 0.55), transparent);
+  animation: mall-stars-twinkle 4s ease-in-out infinite alternate;
+}
+
+.mall-hero-stars-2 {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  mix-blend-mode: screen;
+  background-image:
+    radial-gradient(1px 1px at 22% 12%, rgba(255, 255, 255, 0.75), transparent),
+    radial-gradient(1.2px 1.2px at 92% 22%, rgba(253, 224, 71, 0.85), transparent),
+    radial-gradient(1px 1px at 8% 62%, rgba(196, 181, 253, 0.55), transparent),
+    radial-gradient(1px 1px at 58% 38%, rgba(255, 255, 255, 0.6), transparent),
+    radial-gradient(1.2px 1.2px at 38% 92%, rgba(251, 191, 36, 0.65), transparent);
+  animation: mall-stars-twinkle-slow 5.2s ease-in-out infinite alternate;
+}
+
+@keyframes mall-star-orbit-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.mall-hero-star-orbit {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  overflow: hidden;
+  animation: mall-star-orbit-spin 42s linear infinite;
+}
+
+@keyframes mall-star-glyphs-idle {
+  0% {
+    opacity: 0.5;
+    transform: scale(0.94) rotate(-3deg);
+    filter: brightness(0.92);
+  }
+  100% {
+    opacity: 0.95;
+    transform: scale(1.05) rotate(5deg);
+    filter: brightness(1.25);
+  }
+}
+
+@keyframes mall-hero-star-field-burst {
+  0% {
+    filter: brightness(1);
+    transform: scale(1);
+    opacity: 0.55;
+  }
+  40% {
+    filter: brightness(1.6) saturate(1.15);
+    transform: scale(1.05);
+    opacity: 1;
+  }
+  100% {
+    filter: brightness(1);
+    transform: scale(1);
+    opacity: 0.82;
+  }
+}
+
+@keyframes mall-hero-glyph-burst {
+  0% {
+    opacity: 0.35;
+    transform: scale(0.6) rotate(-20deg);
+    filter: brightness(0.85) blur(1px);
+  }
+  38% {
+    opacity: 1;
+    transform: scale(1.15) rotate(12deg);
+    filter: brightness(1.7) blur(0);
+  }
+  100% {
+    opacity: 0.85;
+    transform: scale(1) rotate(0deg);
+    filter: brightness(1.1);
+  }
+}
+
+.mall-hero-star-glyphs {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  opacity: 0.9;
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23fef08a' d='M12 1.5l3.2 7.4L23 9.8l-5.8 5 2 7.7-7.2-4.4-7.2 4.4 2-7.7-5.8-5 7.8-0.9z'/%3E%3C/svg%3E")
+      6% 22% / 22px 22px no-repeat,
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23fff' d='M12 1.5l3.2 7.4L23 9.8l-5.8 5 2 7.7-7.2-4.4-7.2 4.4 2-7.7-5.8-5 7.8-0.9z'/%3E%3C/svg%3E")
+      78% 8% / 14px 14px no-repeat,
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23fb923c' d='M12 1.5l3.2 7.4L23 9.8l-5.8 5 2 7.7-7.2-4.4-7.2 4.4 2-7.7-5.8-5 7.8-0.9z'/%3E%3C/svg%3E")
+      52% 35% / 17px 17px no-repeat,
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23fde68a' d='M12 1.5l3.2 7.4L23 9.8l-5.8 5 2 7.7-7.2-4.4-7.2 4.4 2-7.7-5.8-5 7.8-0.9z'/%3E%3C/svg%3E")
+      30% 68% / 19px 19px no-repeat,
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23fff' d='M12 1.5l3.2 7.4L23 9.8l-5.8 5 2 7.7-7.2-4.4-7.2 4.4 2-7.7-5.8-5 7.8-0.9z'/%3E%3C/svg%3E")
+      92% 58% / 12px 12px no-repeat,
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23fbbf24' d='M12 1.5l3.2 7.4L23 9.8l-5.8 5 2 7.7-7.2-4.4-7.2 4.4 2-7.7-5.8-5 7.8-0.9z'/%3E%3C/svg%3E")
+      18% 48% / 15px 15px no-repeat;
+  animation: mall-star-glyphs-idle 2.5s ease-in-out infinite alternate;
+}
+
+.mall-hero-bloom .mall-hero-stars,
+.mall-hero-bloom .mall-hero-stars-2 {
+  animation: mall-hero-star-field-burst 1.5s cubic-bezier(0.22, 1, 0.36, 1) forwards !important;
+}
+
+.mall-hero-bloom .mall-hero-star-glyphs {
+  animation: mall-hero-glyph-burst 1.5s cubic-bezier(0.22, 1, 0.36, 1) forwards !important;
+}
+
 /* 콘서트 히어로: 텍스트 + 이미지 2열 */
 .concert-hero-banner {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(168px, 272px);
   gap: 1.25rem;
   align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.concert-hero-banner > div:not(.concert-hero-stars):not(.concert-hero-stars-2):not(.concert-hero-star-orbit) {
+  position: relative;
+  z-index: 2;
+}
+
+/* 콘서트 히어로 별·궤도 (몰·시네마와 동일 계열) */
+@keyframes concert-star-orbit-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.concert-hero-stars,
+.concert-hero-stars-2 {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  mix-blend-mode: screen;
+}
+
+.concert-hero-stars {
+  background-image:
+    radial-gradient(1.2px 1.2px at 12% 20%, rgba(253, 224, 71, 0.95), transparent),
+    radial-gradient(1px 1px at 38% 55%, rgba(196, 181, 253, 0.85), transparent),
+    radial-gradient(1.2px 1.2px at 62% 18%, rgba(244, 114, 182, 0.75), transparent),
+    radial-gradient(1px 1px at 78% 48%, rgba(255, 255, 255, 0.7), transparent),
+    radial-gradient(1.2px 1.2px at 22% 82%, rgba(167, 139, 250, 0.65), transparent);
+  animation: cinema-stars-twinkle 4.6s ease-in-out infinite alternate;
+}
+
+.concert-hero-stars-2 {
+  background-image:
+    radial-gradient(1px 1px at 25% 12%, rgba(255, 255, 255, 0.65), transparent),
+    radial-gradient(1.2px 1.2px at 88% 28%, rgba(251, 191, 36, 0.8), transparent),
+    radial-gradient(1px 1px at 8% 68%, rgba(129, 140, 248, 0.55), transparent),
+    radial-gradient(1.2px 1.2px at 52% 88%, rgba(244, 114, 182, 0.5), transparent);
+  animation: cinema-stars-twinkle-slow 5.8s ease-in-out infinite alternate;
+}
+
+.concert-hero-star-orbit {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  overflow: hidden;
+  animation: concert-star-orbit-spin 52s linear infinite;
+}
+
+.concert-hero-star-glyphs {
+  position: absolute;
+  inset: 0;
+  mix-blend-mode: screen;
+  opacity: 0.88;
+  filter: drop-shadow(0 0 6px rgba(253, 224, 71, 0.35));
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23e9d5ff' d='M12 1.5l3.2 7.4L23 9.8l-5.8 5 2 7.7-7.2-4.4-7.2 4.4 2-7.7-5.8-5 7.8-0.9z'/%3E%3C/svg%3E")
+      10% 22% / 20px 20px no-repeat,
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23fcd34d' d='M12 1.5l3.2 7.4L23 9.8l-5.8 5 2 7.7-7.2-4.4-7.2 4.4 2-7.7-5.8-5 7.8-0.9z'/%3E%3C/svg%3E")
+      74% 14% / 14px 14px no-repeat,
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23fff' d='M12 1.5l3.2 7.4L23 9.8l-5.8 5 2 7.7-7.2-4.4-7.2 4.4 2-7.7-5.8-5 7.8-0.9z'/%3E%3C/svg%3E")
+      88% 48% / 12px 12px no-repeat,
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23f9a8d4' d='M12 1.5l3.2 7.4L23 9.8l-5.8 5 2 7.7-7.2-4.4-7.2 4.4 2-7.7-5.8-5 7.8-0.9z'/%3E%3C/svg%3E")
+      42% 72% / 18px 18px no-repeat;
+  animation: cinema-star-glyphs-idle 2.6s ease-in-out infinite alternate;
+}
+
+.concert-hero-bloom .concert-hero-stars,
+.concert-hero-bloom .concert-hero-stars-2 {
+  animation: cinema-hero-star-burst 1.35s cubic-bezier(0.22, 1, 0.36, 1) forwards !important;
+}
+
+.concert-hero-bloom .concert-hero-star-glyphs {
+  animation: cinema-hero-star-shape-burst 1.45s cubic-bezier(0.22, 1, 0.36, 1) forwards !important;
 }
 
 @media (max-width: 600px) {
@@ -701,14 +1509,45 @@ a {
   margin: 0 auto;
 }
 
+@keyframes concert-slider-viewport-glow {
+  0%,
+  100% {
+    box-shadow:
+      0 0 36px rgba(251, 191, 36, 0.42),
+      0 0 52px rgba(244, 114, 182, 0.28),
+      0 0 64px rgba(167, 139, 250, 0.22),
+      0 16px 48px rgba(0, 0, 0, 0.55),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+  }
+  50% {
+    box-shadow:
+      0 0 48px rgba(251, 191, 36, 0.58),
+      0 0 72px rgba(244, 114, 182, 0.38),
+      0 0 88px rgba(167, 139, 250, 0.32),
+      0 18px 52px rgba(0, 0, 0, 0.58),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+  }
+}
+
 .concert-hero-slider-viewport {
   position: relative;
-  border-radius: 14px;
+  z-index: 0;
+  border-radius: 16px;
   overflow: hidden;
-  border: 2px solid rgba(252, 211, 77, 0.5);
+  /* 이중 background(padding/border-box)는 일부 브라우저에서 콘텐츠 위로 칠해지는 경우가 있어 단순 테두리 + 글로우로 유지 */
+  border: 2px solid rgba(252, 211, 77, 0.55);
+  background-color: #0f0a1a;
   box-shadow:
-    0 0 28px rgba(251, 191, 36, 0.28),
-    0 14px 44px rgba(0, 0, 0, 0.5);
+    0 0 36px rgba(251, 191, 36, 0.42),
+    0 0 52px rgba(244, 114, 182, 0.28),
+    0 0 64px rgba(167, 139, 250, 0.22),
+    0 16px 48px rgba(0, 0, 0, 0.55),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+  animation: concert-slider-viewport-glow 4.5s ease-in-out infinite;
+}
+
+.concert-hero-slider-viewport:hover .concert-hero-slider-slide img {
+  transform: scale(1.04);
 }
 
 @keyframes concert-slider-spark-flash {
@@ -798,6 +1637,8 @@ a {
 }
 
 .concert-hero-slider-track {
+  position: relative;
+  z-index: 1;
   display: flex;
   width: 100%;
   transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
@@ -809,12 +1650,16 @@ a {
 }
 
 .concert-hero-slider-slide img {
+  position: relative;
+  z-index: 1;
   display: block;
   width: 100%;
   height: auto;
   aspect-ratio: 4 / 5;
   object-fit: cover;
   vertical-align: middle;
+  filter: saturate(1.22) contrast(1.06) brightness(1.03);
+  transition: transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .concert-hero-slider-dots {
@@ -940,6 +1785,7 @@ a {
 
 .sehyeon-main-surface {
   display: block;
+  position: relative;
 }
 
 #sehyeon-main:focus {
@@ -953,21 +1799,66 @@ a {
 }
 
 .sehyeon-site-footer {
+  position: relative;
   margin-top: 0.5rem;
-  padding: 1.35rem 1rem 5.5rem;
-  border-top: 1px solid rgba(196, 92, 62, 0.18);
+  padding: 1.5rem 1rem 5.5rem;
+  border-top: none;
   background: linear-gradient(
     188deg,
-    rgba(255, 252, 248, 0.55) 0%,
-    rgba(253, 242, 232, 0.35) 40%,
-    rgba(245, 240, 255, 0.25) 100%
+    rgba(255, 252, 248, 0.92) 0%,
+    rgba(255, 245, 250, 0.88) 38%,
+    rgba(250, 245, 255, 0.9) 72%,
+    rgba(245, 243, 255, 0.95) 100%
   );
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.65),
+    0 -12px 40px rgba(251, 191, 36, 0.08),
+    0 -4px 24px rgba(167, 139, 250, 0.06);
+}
+
+.sehyeon-site-footer::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 4px;
+  border-radius: 0 0 12px 12px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(251, 191, 36, 0.85) 18%,
+    rgba(244, 114, 182, 0.75) 38%,
+    rgba(167, 139, 250, 0.85) 58%,
+    rgba(56, 189, 248, 0.65) 78%,
+    transparent 100%
+  );
+  box-shadow: 0 2px 20px rgba(251, 191, 36, 0.35);
+  pointer-events: none;
 }
 
 .sehyeon-site-footer-inner {
   max-width: 1100px;
   margin: 0 auto;
   text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
+.sehyeon-site-footer-inner::before {
+  content: "✦  ✧  ✦";
+  display: block;
+  margin: 0 auto 0.65rem;
+  font-size: 0.78rem;
+  letter-spacing: 0.42em;
+  background: linear-gradient(90deg, #a8a29e, #fbbf24, #e879f9, #a78bfa, #a8a29e);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: sehyeon-brand-title-flow 16s ease-in-out infinite;
+  opacity: 0.95;
+  pointer-events: none;
 }
 
 .sehyeon-site-footer-line {
@@ -979,8 +1870,14 @@ a {
 }
 
 .sehyeon-site-footer-strong {
-  color: var(--accent-dim);
-  font-weight: 800;
+  font-weight: 900;
+  background: linear-gradient(100deg, #c45c3e, #ea580c, #c026d3, #7c3aed, #c45c3e);
+  background-size: 220% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: sehyeon-brand-title-flow 14s ease-in-out infinite;
+  filter: drop-shadow(0 1px 8px rgba(251, 191, 36, 0.25));
 }
 
 .sehyeon-site-footer-sub {
@@ -996,10 +1893,22 @@ a {
 }
 
 .sehyeon-footer-meta {
-  margin: 0 0 1rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid rgba(196, 92, 62, 0.14);
+  margin: 0 auto 1rem;
+  padding: 1rem 1.1rem 1.1rem;
+  max-width: 720px;
+  border-radius: 16px;
+  border: 1px solid rgba(251, 191, 36, 0.22);
   text-align: center;
+  background: linear-gradient(
+    165deg,
+    rgba(255, 255, 255, 0.72) 0%,
+    rgba(255, 250, 245, 0.55) 45%,
+    rgba(250, 245, 255, 0.6) 100%
+  );
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.5) inset,
+    0 8px 32px rgba(196, 92, 62, 0.08),
+    0 4px 20px rgba(124, 58, 237, 0.06);
 }
 
 .sehyeon-footer-meta-session {
@@ -1361,6 +2270,54 @@ a {
     filter: none !important;
   }
 
+  .cinema-hero-wrap .cinema-hero-star-shapes {
+    animation: none !important;
+    opacity: 0.35 !important;
+    transform: none !important;
+    filter: none !important;
+  }
+
+  .cinema-hero-star-orbit,
+  .mall-hero-star-orbit,
+  .concert-hero-star-orbit {
+    animation: none !important;
+    transform: none !important;
+  }
+
+  .concert-hero-stars,
+  .concert-hero-stars-2 {
+    animation: none !important;
+    opacity: 0.5 !important;
+  }
+
+  .concert-hero-star-glyphs {
+    animation: none !important;
+    opacity: 0.32 !important;
+  }
+
+  .concert-hero-bloom .concert-hero-stars,
+  .concert-hero-bloom .concert-hero-stars-2,
+  .concert-hero-bloom .concert-hero-star-glyphs {
+    animation: none !important;
+    filter: none !important;
+  }
+
+  .mall-hero-stars,
+  .mall-hero-stars-2,
+  .mall-hero-star-glyphs {
+    animation: none !important;
+    opacity: 0.45 !important;
+    transform: none !important;
+    filter: none !important;
+  }
+
+  .mall-hero-bloom .mall-hero-stars,
+  .mall-hero-bloom .mall-hero-stars-2,
+  .mall-hero-bloom .mall-hero-star-glyphs {
+    animation: none !important;
+    filter: none !important;
+  }
+
   .concert-site-root.concert-portal-shine::before {
     display: none !important;
   }
@@ -1380,6 +2337,30 @@ a {
     transition: none !important;
   }
 
+  .concert-hero-slider-viewport {
+    animation: none !important;
+  }
+
+  .concert-hero-slider-slide img {
+    filter: none !important;
+    transform: none !important;
+  }
+
+  .sehyeon-site-footer-inner::before {
+    animation: none !important;
+    color: #a8a29e !important;
+    background: none !important;
+    -webkit-text-fill-color: #a8a29e !important;
+  }
+
+  .sehyeon-site-footer-strong {
+    animation: none !important;
+    background: none !important;
+    color: var(--accent-dim) !important;
+    -webkit-text-fill-color: currentColor !important;
+    filter: none !important;
+  }
+
   .sehyeon-click-spark,
   .sehyeon-click-spark-layer {
     display: none !important;
@@ -1391,6 +2372,10 @@ a {
 
   .sehyeon-portal-mount {
     animation: none !important;
+  }
+
+  .sehyeon-portal-burst {
+    display: none !important;
   }
 
   .sehyeon-session-celebration,

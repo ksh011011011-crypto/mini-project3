@@ -219,9 +219,12 @@ const BEST_PRODUCT_IDS = new Set([
 export default function MallSite(props?: {
   intentVersion?: number;
   intent?: MallIntentPayload;
+  /** 세현몰 탭·빠른 이동으로 몰 진입할 때마다 증가 → 별 연출 */
+  fxPulse?: number;
 }) {
   const intentVersion = props?.intentVersion ?? 0;
   const intent = props?.intent;
+  const fxPulse = props?.fxPulse ?? 0;
   const { isAdmin } = useAuth();
   const [payOpen, setPayOpen] = useState(false);
   const [floorTab, setFloorTab] = useState<"전체" | ProductFloor>("전체");
@@ -233,7 +236,15 @@ export default function MallSite(props?: {
   );
   const [now, setNow] = useState(() => Date.now());
   const [search, setSearch] = useState("");
+  const [starBloom, setStarBloom] = useState(false);
   const visitInfo = useMemo(() => readAndRecordMallVisit(), []);
+
+  useEffect(() => {
+    if (fxPulse < 1) return;
+    setStarBloom(true);
+    const t = window.setTimeout(() => setStarBloom(false), 1600);
+    return () => window.clearTimeout(t);
+  }, [fxPulse]);
 
   useEffect(() => {
     const id = window.setInterval(() => setNow(Date.now()), 1000);
@@ -517,14 +528,22 @@ export default function MallSite(props?: {
 
   return (
     <div className="mall-root" style={styles.page}>
-      <div className="mall-promo" role="note">
-        <span>
-          🎁 첫 구매 무료배송 · B1 세현마트 · 9F 푸드코트 · 10F 시네마 · 12F
-          라운지 (데모)
-        </span>
-      </div>
+      <div
+        className={`mall-hero-wrap${starBloom ? " mall-hero-bloom" : ""}`}
+      >
+        <div className="mall-hero-stars" aria-hidden />
+        <div className="mall-hero-stars-2" aria-hidden />
+        <div className="mall-hero-star-orbit" aria-hidden>
+          <div className="mall-hero-star-glyphs" />
+        </div>
+        <div className="mall-promo" role="note">
+          <span>
+            🎁 첫 구매 무료배송 · B1 세현마트 · 9F 푸드코트 · 10F 시네마 · 12F
+            라운지 (데모)
+          </span>
+        </div>
 
-      <header className="mall-topbar">
+        <header className="mall-topbar">
         <div className="mall-topbar-inner">
           <div style={styles.mallBrand}>
             <span style={styles.mallBrandKo}>세현몰</span>
@@ -580,6 +599,7 @@ export default function MallSite(props?: {
           </nav>
         </div>
       </header>
+      </div>
 
       <div className="mall-trust">
         <span>오늘출발</span>

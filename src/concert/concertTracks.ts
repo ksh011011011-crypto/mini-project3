@@ -1,32 +1,7 @@
 /**
- * Mixkit 프리뷰( mixkit.co/license ) — 콘서트·라이브 분위기용.
+ * Mixkit 무료 음원(mixkit.co/license) — 잔잔한 공연·감성 톤(몰·시네마와 동일 풀).
  */
 export type ConcertTrack = { id: string; title: string; url: string };
 
-export const CONCERT_AMBIENT_TRACKS: ConcertTrack[] = [
-  {
-    id: "cf1",
-    title: "Happy Walk",
-    url: "https://assets.mixkit.co/music/preview/mixkit-happy-walk-1232.mp3",
-  },
-  {
-    id: "cf2",
-    title: "Island Beat",
-    url: "https://assets.mixkit.co/music/preview/mixkit-island-beat-250.mp3",
-  },
-  {
-    id: "cf3",
-    title: "Serene View",
-    url: "https://assets.mixkit.co/music/preview/mixkit-serene-view-443.mp3",
-  },
-  {
-    id: "cf4",
-    title: "Driving Ambition",
-    url: "https://assets.mixkit.co/music/preview/mixkit-driving-ambition-32.mp3",
-  },
-];
-
-export function pickRandomConcertTrack(): ConcertTrack {
-  const i = Math.floor(Math.random() * CONCERT_AMBIENT_TRACKS.length);
-  return CONCERT_AMBIENT_TRACKS[i] ?? CONCERT_AMBIENT_TRACKS[0];
-}
+export { EMOTIONAL_FAREWELL_TRACKS as CONCERT_AMBIENT_TRACKS } from "../audio/emotionalAmbientTracks";
+export { pickRandomEmotionalTrack as pickRandomConcertTrack } from "../audio/emotionalAmbientTracks";

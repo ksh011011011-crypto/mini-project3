@@ -31,6 +31,25 @@ function remainingSeats(s: Screening, bookings: CinemaBooking[]): number {
   return ALL_SEAT_IDS.length - mergedOccupied(s, bookings).size;
 }
 
+/** 자동 예매: 중앙 열(F열 인접 5~12열) 우선, 없으면 임의 2석(또는 1석). */
+function pickAutoSeats(s: Screening, bookings: CinemaBooking[]): string[] {
+  const occ = mergedOccupied(s, bookings);
+  const rowsPriority = ["F", "E", "G", "D", "H", "C", "B", "A"];
+  for (const r of rowsPriority) {
+    for (let c = 4; c <= 11; c++) {
+      const a = `${r}${c}`;
+      const b = `${r}${c + 1}`;
+      if (!occ.has(a) && !occ.has(b)) return [a, b];
+    }
+  }
+  const spare: string[] = [];
+  for (const id of ALL_SEAT_IDS) {
+    if (!occ.has(id)) spare.push(id);
+    if (spare.length >= 2) return spare;
+  }
+  return spare;
+}
+
 function seatExtraWon(seatId: string): number {
   if (/^[DEF][4-9]$/.test(seatId)) return 2500;
   if (/^[GH][3-9]$/.test(seatId)) return 1000;
@@ -103,6 +122,7 @@ export default function CinemaSite({
   >("all");
   const [yearFilter, setYearFilter] = useState<string>("all");
   const [starBloom, setStarBloom] = useState(false);
+  const [autoBookBanner, setAutoBookBanner] = useState<string | null>(null);
 
   useEffect(() => {
     if (kiosk) return;
@@ -289,6 +309,58 @@ export default function CinemaSite({
     refreshBookings();
   };
 
+  const runAutoBook = useCallback(() => {
+    if (nowMovies.length === 0) {
+      setAutoBookBanner("상영 중인 영화가 없습니다.");
+      window.setTimeout(() => setAutoBookBanner(null), 4000);
+      return;
+    }
+    type Cand = { s: Screening; day: number };
+    const candidates: Cand[] = [];
+    for (let day = 0; day < 7; day++) {
+      for (const m of nowMovies) {
+        for (const s of screeningsForMovieDay(schedule, m.id, day, now)) {
+          candidates.push({ s, day });
+        }
+      }
+    }
+    candidates.sort((a, b) => a.s.startAt.localeCompare(b.s.startAt));
+
+    for (const { s, day } of candidates) {
+      if (remainingSeats(s, bookings) < 1) continue;
+      const seats = pickAutoSeats(s, bookings);
+      if (seats.length === 0) continue;
+      const ticket = seats.reduce((sum, sid) => sum + priceForSeat(s, sid), 0);
+      const b: CinemaBooking = {
+        id: `bk-auto-${Date.now()}`,
+        screeningId: s.id,
+        movieTitle: movieById(s.movieId).titleKo,
+        hall: s.hall,
+        startAt: s.startAt,
+        seats: [...seats].sort(),
+        totalWon: ticket,
+        createdAt: Date.now(),
+      };
+      addBooking(b);
+      refreshBookings();
+      setTimetableMovieId(s.movieId);
+      setDayIndex(day);
+      setView("my");
+      closePicker();
+      const t = formatShowTime(s.startAt);
+      setAutoBookBanner(
+        `「${b.movieTitle}」 ${dayLabel(day, now)} ${t} · ${b.hall} · 좌석 ${b.seats.join(", ")} (${seats.length}석) 예매했습니다. (데모 즉시 확정)`
+      );
+      window.setTimeout(() => setAutoBookBanner(null), 9000);
+      window.setTimeout(() => {
+        document.getElementById("my-h")?.scrollIntoView({ behavior: "smooth" });
+      }, 120);
+      return;
+    }
+    setAutoBookBanner("예매 가능한 회차·좌석을 찾지 못했습니다.");
+    window.setTimeout(() => setAutoBookBanner(null), 5000);
+  }, [nowMovies, schedule, now, bookings, refreshBookings, closePicker]);
+
   const occPicker = picker ? mergedOccupied(picker, bookings) : new Set<string>();
   const pickTotal =
     picker && pickSeats.length
@@ -322,20 +394,37 @@ export default function CinemaSite({
               </button>
             ))}
           </nav>
-          <button
-            type="button"
-            style={cx.quickBtn}
-            onClick={() => {
-              setView("timetable");
-              window.setTimeout(() => {
-                document
-                  .getElementById("cinema-schedule")
-                  ?.scrollIntoView({ behavior: "smooth" });
-              }, 80);
+          <div
+            style={{
+              display: "flex",
+              gap: 8,
+              flexWrap: "wrap",
+              alignItems: "center",
             }}
           >
-            빠른예매
-          </button>
+            <button
+              type="button"
+              style={cx.quickBtn}
+              onClick={() => {
+                setView("timetable");
+                window.setTimeout(() => {
+                  document
+                    .getElementById("cinema-schedule")
+                    ?.scrollIntoView({ behavior: "smooth" });
+                }, 80);
+              }}
+            >
+              빠른예매
+            </button>
+            <button
+              type="button"
+              style={cx.autoBookBtn}
+              onClick={runAutoBook}
+              title="가장 빠른 회차·추천 좌석으로 바로 예매(데모 즉시 확정)"
+            >
+              자동 예매
+            </button>
+          </div>
         </div>
       </header>
 
@@ -348,6 +437,9 @@ export default function CinemaSite({
         <div style={cx.heroGrad} />
         <div className="cinema-hero-stars" aria-hidden />
         <div className="cinema-hero-stars-2" aria-hidden />
+        <div className="cinema-hero-star-orbit" aria-hidden>
+          <div className="cinema-hero-star-shapes" />
+        </div>
         <div style={cx.heroContent}>
           <p style={cx.heroBadge}>지금 예매 중 · 실시간 잔여석 반영(데모)</p>
           <h1 style={cx.heroTitle}>{movie.titleKo}</h1>
@@ -378,11 +470,23 @@ export default function CinemaSite({
             >
               상영시간표 보기
             </button>
+            <button
+              type="button"
+              style={cx.heroAutoBtn}
+              onClick={runAutoBook}
+            >
+              자동 예매
+            </button>
           </div>
         </div>
       </section>
 
       <main style={cx.main}>
+        {autoBookBanner ? (
+          <div style={cx.autoBookBanner} role="status" aria-live="polite">
+            ✨ {autoBookBanner}
+          </div>
+        ) : null}
         {view === "chart" && (
           <section style={cx.section} aria-labelledby="chart-h">
             <h2 id="chart-h" style={cx.h2}>
@@ -519,9 +623,10 @@ export default function CinemaSite({
               상영시간표 · 예매
             </h2>
             <p style={cx.lead}>
-              날짜를 고른 뒤 회차를 누르면 좌석도가 열립니다. 주말·프라임은
-              요금이 올라갑니다. 아래에서 특별관·일반관 설명을 펼쳐 보실 수
-              있습니다.
+              날짜를 고른 뒤 회차를 누르면 좌석도가 열립니다. 상단{" "}
+              <strong style={{ color: "#6ee7b7" }}>「자동 예매」</strong>는
+              가장 빠른 상영·추천 좌석(중앙 인접 2석 우선)으로 데모 예매를 바로
+              확정합니다.
             </p>
 
             <details style={cx.hallDetails}>
@@ -937,6 +1042,30 @@ const cx: Record<string, CSSProperties> = {
     fontWeight: 700,
     fontSize: "0.8rem",
   },
+  autoBookBtn: {
+    border: "1px solid #059669",
+    background: "linear-gradient(135deg,#34d399,#059669)",
+    color: "#ecfdf5",
+    padding: "8px 16px",
+    borderRadius: 999,
+    fontWeight: 800,
+    fontSize: "0.8rem",
+    cursor: "pointer",
+    boxShadow: "0 0 20px rgba(52, 211, 153, 0.25)",
+  },
+  autoBookBanner: {
+    maxWidth: 1100,
+    margin: "0 auto 16px",
+    padding: "12px 16px",
+    borderRadius: 12,
+    background:
+      "linear-gradient(135deg,rgba(6,95,70,0.42),rgba(22,101,52,0.32))",
+    border: "1px solid rgba(52, 211, 153, 0.5)",
+    color: "#d1fae5",
+    fontSize: "0.88rem",
+    fontWeight: 600,
+    lineHeight: 1.45,
+  },
   hero: { position: "relative", minHeight: 300, overflow: "hidden" },
   heroBg: {
     position: "absolute",
@@ -954,7 +1083,7 @@ const cx: Record<string, CSSProperties> = {
   },
   heroContent: {
     position: "relative",
-    zIndex: 1,
+    zIndex: 2,
     maxWidth: 1100,
     margin: "0 auto",
     padding: "36px 16px 48px",
@@ -1080,6 +1209,17 @@ const cx: Record<string, CSSProperties> = {
     borderRadius: 999,
     fontWeight: 800,
     fontSize: "0.85rem",
+  },
+  heroAutoBtn: {
+    border: "1px solid rgba(52, 211, 153, 0.65)",
+    background: "linear-gradient(135deg,rgba(52,211,153,0.25),rgba(5,150,105,0.35))",
+    color: "#ecfdf5",
+    padding: "10px 18px",
+    borderRadius: 999,
+    fontWeight: 800,
+    fontSize: "0.85rem",
+    cursor: "pointer",
+    boxShadow: "0 0 24px rgba(52, 211, 153, 0.2)",
   },
   main: {
     flex: 1,

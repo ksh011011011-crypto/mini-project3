@@ -11,8 +11,9 @@ export default defineConfig({
     strictPort: false,
   },
   /** 5173 대역이 다른 터미널에 잡혀 있을 때가 많아, 이 프로젝트 전용 기본 포트로 둡니다. */
+  /** host: 같은 Wi‑Fi의 폰·다른 PC에서 http://<PC의 LAN IP>:5188 접속 가능. */
   server: {
-    host: true,
+    host: "0.0.0.0",
     port: 5188,
     strictPort: false,
   },
